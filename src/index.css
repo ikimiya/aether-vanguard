@@ -399,73 +399,142 @@ button.card:hover:not(:disabled) {
   grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 132px), 1fr));
 }
 
-/* home hub: fixed 5-across team strip */
-.team-strip {
+/* ------------------------------------------------------- home main menu --- */
+
+.menu {
+  position: relative;
+  min-height: 100%;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--s-2);
-}
-.team-strip .card {
-  padding: var(--s-2);
-}
-.team-strip .card__name {
-  font-size: var(--fs-xs);
-}
-.team-strip .card__meta {
-  font-size: 0.68rem;
+  gap: var(--s-3);
+  padding: max(var(--s-4), env(safe-area-inset-top)) max(var(--s-5), env(safe-area-inset-right))
+    calc(var(--s-5) + env(safe-area-inset-bottom, 0px)) max(var(--s-5), env(safe-area-inset-left));
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "hud    hud"
+    "char   char"
+    "play   play"
+    "team   gacha"
+    "roster endless";
+  align-content: start;
 }
 
-/* home hub: mode-select buttons */
-.mode-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-3);
+@media (min-width: 720px) {
+  .menu {
+    grid-template-columns: minmax(150px, 1fr) minmax(0, 2fr) minmax(150px, 1fr);
+    grid-template-rows: auto 1fr 1fr;
+    grid-template-areas:
+      "hud    .      play"
+      "roster char   endless"
+      "team   char   gacha";
+    align-content: stretch;
+    gap: var(--s-4);
+  }
 }
-.mode-card {
+
+.menu__hud {
+  grid-area: hud;
   display: flex;
   flex-direction: column;
-  gap: var(--s-1);
-  min-height: 118px;
-  padding: var(--s-4);
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+.menu__name {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.menu__char {
+  grid-area: char;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: var(--s-3);
+}
+.menu__char::before {
+  content: "";
+  position: absolute;
+  inset: 12% 16%;
+  background: radial-gradient(circle, var(--rarity, var(--accent)), transparent 68%);
+  opacity: 0.2;
+  filter: blur(24px);
+}
+.menu__char img {
+  position: relative;
+  max-height: min(46vh, 440px);
+  width: auto;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  filter: drop-shadow(0 22px 44px rgba(0, 0, 0, 0.55));
+}
+
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
   background: var(--surface-1);
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
   color: var(--text);
+  font-weight: 700;
+  font-size: var(--fs-lg);
   transition:
     transform var(--dur) var(--ease),
     border-color var(--dur) var(--ease),
     box-shadow var(--dur) var(--ease);
 }
-.mode-card:hover {
+.menu-btn:hover {
   text-decoration: none;
   transform: translateY(-2px);
-  border-color: var(--accent);
-  box-shadow: var(--glow);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-2);
 }
-.mode-card svg {
-  width: 26px;
-  height: 26px;
-  color: var(--accent-2);
-}
-.mode-card__label {
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  line-height: 1.1;
-}
-.mode-card__sub {
-  margin-top: auto;
+.menu-btn small {
+  font-weight: 600;
   font-size: var(--fs-xs);
   color: var(--text-dim);
 }
 
-@media (max-width: 460px) {
-  .mode-card {
-    min-height: 96px;
-    padding: var(--s-3);
-  }
-  .mode-card__label {
-    font-size: var(--fs-md);
-  }
+.menu-btn--play {
+  grid-area: play;
+  min-height: 104px;
+  padding: var(--s-4) var(--s-5);
+  background: var(--accent-gradient);
+  border: none;
+  color: #fff;
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+}
+.menu-btn--play:hover {
+  box-shadow: var(--glow);
+  filter: brightness(1.06);
+}
+.menu-btn--play small {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: var(--fs-sm);
+}
+.menu-btn--team {
+  grid-area: team;
+}
+.menu-btn--gacha {
+  grid-area: gacha;
+}
+.menu-btn--roster,
+.menu-btn--endless {
+  min-height: 52px;
+  font-size: var(--fs-md);
+  background: var(--surface-2);
+}
+.menu-btn--roster {
+  grid-area: roster;
+}
+.menu-btn--endless {
+  grid-area: endless;
 }
 
 .list {

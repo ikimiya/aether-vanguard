@@ -55,6 +55,7 @@ function AppBar() {
 function LayoutInner() {
   const { loading, error } = useGameData();
   const { pathname } = useLocation();
+  const atHome = pathname === "/";
   const screenRef = useRef<HTMLElement>(null);
 
   // each screen starts at the top — the scroll lives in .screen, not the window
@@ -62,25 +63,33 @@ function LayoutInner() {
     screenRef.current?.scrollTo(0, 0);
   }, [pathname]);
 
+  const outlet = (
+    <ErrorBoundary key={pathname}>
+      <Outlet />
+    </ErrorBoundary>
+  );
+
   return (
     <div className="app">
-      <AppBar />
+      {!atHome && <AppBar />}
 
       <main className="screen" ref={screenRef}>
-        <div className="page">
-          {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
-          {loading ? (
-            <div className="stack">
-              <div className="skeleton" style={{ height: 160 }} />
-              <div className="skeleton" style={{ height: 90 }} />
-              <div className="skeleton" style={{ height: 90 }} />
-            </div>
-          ) : (
-            <ErrorBoundary key={pathname}>
-              <Outlet />
-            </ErrorBoundary>
-          )}
-        </div>
+        {atHome && !loading && !error ? (
+          outlet
+        ) : (
+          <div className="page">
+            {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+            {loading ? (
+              <div className="stack">
+                <div className="skeleton" style={{ height: 160 }} />
+                <div className="skeleton" style={{ height: 90 }} />
+                <div className="skeleton" style={{ height: 90 }} />
+              </div>
+            ) : (
+              outlet
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
