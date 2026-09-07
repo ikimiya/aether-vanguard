@@ -151,6 +151,39 @@ windows, and that every referenced art file exists. `npm run gen:sql`
 default curve, `app.game_constants`). `sql-seed.test.ts` fails if the checked-in
 seed drifts. After `gen:sql`, re-run `config_seed.sql` in the Supabase SQL editor.
 
+### Character data lifecycle
+
+A character is a static `Character` object (`src/game/data/characters/<id>.ts`,
+shape in `src/game/types.ts`). The DB only ever stores the mutable per-user slice
+— `public.owned_characters` rows keyed by `character_key` plus
+`level/exp/star/dupe_shards`. `getCharacter(character_key)` joins the two at
+runtime.
+
+```
+scaffold ─▶ src/game/data/characters/<id>.ts ─▶ characters/index.ts (CHARACTERS, CHARACTERS_BY_ID)
+                  │                                     │
+        public/assets/characters/<id>/*.png             ├─▶ client bundle: Roster / Formation / Home /
+                  │                                     │   CharacterDetail — getCharacter() + rosterRepo join
+                  ├─ npm run validate (refs/ranges/assets)
+                  │                                     └─▶ battle: party.toParty → engine/setup.playerUnit →
+                  └─ npm run gen:sql ─▶ config_seed.sql      progression.computeStats; skills via getSkill(id)
+                        └─ app.characters(key, rarity)
+                           app.star_up_cost(key, star, shards)
+                                  │
+                     Supabase SQL editor (0001 → 0002 → 0004 → seed)
+                                  │
+                 pull_banner / star_up_character RPCs ──write──▶ public.owned_characters.character_key
+```
+
+- **Server** reads only `app.characters` (id→rarity, for the gacha pool) and
+  `app.star_up_cost`. `pull_banner` inserts/updates `owned_characters` by
+  `character_key`; the rest of the `Character` never leaves the client bundle.
+- **Client** reads `owned_characters` via `src/lib/db/roster.ts` +
+  `GameDataProvider`, then resolves each row through `getCharacter()` /
+  `tryGetCharacter()` — unknown keys are dropped by the Roster/Formation guards.
+- The `id` is a durable key. Adding a character is additive and safe; renaming
+  one orphans existing `owned_characters` rows — see "Renaming a character id".
+
 ### Changing balance
 
 Edit a number in `src/game/data/` (or the cost constants in `progression.ts`) →
