@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createHashRouter, Navigate } from "react-router-dom";
+import { createMemoryRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "./AppLayout";
 import { RequireAuth } from "./auth/RequireAuth";
 import { Home } from "./screens/Home";
@@ -22,9 +22,10 @@ const lazyScreen = (load: () => Promise<{ [k: string]: React.ComponentType }>, n
   );
 };
 
-// HashRouter: GitHub Pages serves a single index.html, so client-side deep
-// links must live after the `#` to avoid 404s.
-export const router = createHashRouter([
+// In-memory routing: the browser URL never changes — it stays the site root and
+// screens are swapped in place. No deep links, no back/forward, and a refresh
+// returns to Home. GitHub Pages therefore only ever serves the one index.html.
+export const router = createMemoryRouter([
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
   { path: "/sandbox", element: lazyScreen(() => import("./screens/BattleSandbox"), "BattleSandbox") },
