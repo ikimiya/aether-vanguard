@@ -45,7 +45,7 @@ export function Gacha() {
                   background: "var(--panel)",
                 }}
               >
-                <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6 }} />
+                <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6, width: "100%" }} />
                 <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{c.name}</div>
                 <div style={{ fontSize: "0.75rem", color: RARITIES[o.rarity].color }}>
                   {RARITIES[o.rarity].label}

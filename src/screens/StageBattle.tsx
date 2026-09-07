@@ -27,6 +27,11 @@ export function StageBattle() {
     [roster],
   );
 
+  const config = useMemo<BattleConfig>(
+    () => ({ seed: Math.floor(Math.random() * 1_000_000), party, waves: stage?.waves ?? [] }),
+    [stage, party],
+  );
+
   if (!stage) return <p>Unknown stage. <button onClick={() => navigate("/stages")}>Back</button></p>;
   if (party.length === 0) {
     return (
@@ -55,8 +60,6 @@ export function StageBattle() {
       </div>
     );
   }
-
-  const config: BattleConfig = { seed: Date.now() % 1_000_000, party, waves: stage.waves };
 
   async function finish(result: BattleResult) {
     setBusy(true);

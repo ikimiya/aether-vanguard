@@ -27,12 +27,10 @@ const Ctx = createContext<GameDataContext | null>(null);
 export function GameDataProvider({ children }: { children: React.ReactNode }) {
   const userId = useUserId();
   const [data, setData] = useState<GameData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!userId) return;
-    setLoading(true);
     setError(null);
     try {
       const [currencies, roster, progress, gachaState, endless] = await Promise.all([
@@ -45,14 +43,15 @@ export function GameDataProvider({ children }: { children: React.ReactNode }) {
       setData({ currencies, roster, progress, gachaState, endless });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load your data");
-    } finally {
-      setLoading(false);
     }
   }, [userId]);
 
   useEffect(() => {
+    setData(null);
     void reload();
   }, [reload]);
+
+  const loading = data === null && error === null;
 
   const clearedStageIds = new Set(
     (data?.progress ?? []).filter((p) => p.cleared).map((p) => p.stage_id),
