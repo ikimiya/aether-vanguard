@@ -23,6 +23,9 @@ export interface Character {
   mpRegen: number;
   /** Magic skill ids. Basic attack + defend are universal (engine-injected). */
   skills: string[];
+  /** Shards to reach each star (target star 2..MAX_STAR). Any omitted key falls
+   *  back to the global `STAR_UP_SHARDS` curve. */
+  starUp?: Partial<Record<2 | 3 | 4 | 5, number>>;
   /** `splash`, if set, is the home-menu wallpaper while this unit leads the team. */
   art: { portrait: string; battle: string; splash?: string };
   lore?: string;
@@ -129,9 +132,18 @@ export interface Banner {
   id: string;
   name: string;
   costPerPull: number;
+  /** Character ids that get the rate-up, per rarity slot. */
   featured: Partial<Record<Rarity, string[]>>;
+  /** Chance the featured unit is chosen (vs a random pool unit) when a pull hits
+   *  that rarity. Per-rarity; omitted keys fall back to
+   *  FEATURED_5STAR_CHANCE / FOUR_STAR_FEATURED_CHANCE. */
+  featuredRate?: Partial<Record<Rarity, number>>;
   /** Character ids eligible as non-featured pulls. Omit for "all characters". */
   poolCharacters?: string[];
+  /** ISO timestamps. Omitted `startsAt` = live now; omitted `endsAt` = no end.
+   *  The window is enforced server-side by `pull_banner`. */
+  startsAt?: string;
+  endsAt?: string;
   art: string;
   standard?: boolean;
 }

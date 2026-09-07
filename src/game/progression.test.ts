@@ -46,4 +46,10 @@ describe("costs and caps", () => {
     expect(starUpCost(1)!).toBeLessThan(starUpCost(4)!);
     expect(starUpCost(MAX_STAR)).toBeNull();
   });
+
+  it("a character's starUp entry overrides the global curve", () => {
+    const custom = { starUp: { 3: 999 } as const };
+    expect(starUpCost(2, custom)).toBe(999); // star 2 -> 3 uses the override
+    expect(starUpCost(1, custom)).toBe(starUpCost(1)); // star 1 -> 2 falls back
+  });
 });

@@ -25,6 +25,7 @@ sections below.
 | Watch tests | `npm run test:watch` |
 | Type-check only | `npm run typecheck` |
 | Regenerate placeholder art | `npm run gen:art` |
+| Validate the static data | `npm run validate` (schema / refs / assets; `gen:sql` runs it first) |
 | Regenerate the DB config seed | `npm run gen:sql` (after any `src/game/data/` change) |
 
 Tests run in Node (no jsdom). Anything imported into a `*.test.ts` file must not
@@ -38,6 +39,7 @@ written to be importable from Node.
    `supabase/migrations/0001_init.sql`, then
    `supabase/migrations/0002_server_authoritative.sql`, then
    `supabase/migrations/0003_formation.sql`, then
+   `supabase/migrations/0004_banner_pipeline.sql`, then
    `supabase/generated/config_seed.sql`.
 3. `cp .env.example .env` and fill `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
    from Supabase project settings → API.
@@ -134,13 +136,27 @@ by the client — verifying it would need a server-side replay engine.
 gates first-clear on clearing the previous stage, and `submit_endless` clamps the
 wave. Acceptable for a hobby game; not for competitive leaderboards.
 
+### The data pipeline (characters / banners → SQL)
+
+`src/game/data/` is the single source of truth. `npm run validate`
+(`scripts/validate.ts`) checks the whole set — unique ids, skill/character refs,
+featured-rarity match, rates summing to 1, `featuredRate`/`starUp` ranges, banner
+windows, and that every referenced art file exists. `npm run gen:sql`
+(`scripts/gen-sql-config.ts`) runs `validate()` first, then regenerates
+`supabase/generated/config_seed.sql` — the `app.*` config the economy RPCs read
+(`app.characters` id→rarity, `app.rarity_config`, `app.banners` incl.
+`featured_rate` / `pool_characters` / `starts_at` / `ends_at`, `app.stages`,
+`app.star_up_cost` keyed by `(character_key, target_star)` with `'*'` as the
+default curve, `app.game_constants`). `sql-seed.test.ts` fails if the checked-in
+seed drifts. After `gen:sql`, re-run `config_seed.sql` in the Supabase SQL editor.
+
 ### Changing balance
 
-Edit `src/game/data/` (or the cost constants in `progression.ts`) → `npm run
-gen:sql` → re-run `supabase/generated/config_seed.sql` in the SQL editor. If you
-change a *rule* (pity ramp, star cap, reward-merge logic) rather than a number,
-update both `src/game/gacha.ts`/`progression.ts` **and** the matching plpgsql in
-`0002_server_authoritative.sql`.
+Edit a number in `src/game/data/` (or the cost constants in `progression.ts`) →
+`npm run gen:sql` → re-run `config_seed.sql`. That's it — no SQL by hand. Only a
+*rule* change (pity ramp, star cap, a new mechanic) needs both
+`src/game/gacha.ts`/`progression.ts` **and** the matching plpgsql in
+`0002` / `0004` updated together.
 
 ### Adding a character
 
@@ -149,26 +165,40 @@ gacha pool, banner `featured` lists, and the DB `owned_characters.character_key`
 
 1. Data file `src/game/data/characters/<id>.ts` — copy `kai.ts`; set `id`,
    `name`, `rarity` (`3 | 4 | 5`), `element`, `role`, `baseStats`/`growth`,
-   `maxMp`/`mpRegen`, `skills` (ids from `src/game/data/skills/index.ts`), and the
-   `art` paths.
-2. Register it: `import` + one array line in
-   `src/game/data/characters/index.ts`.
+   `maxMp`/`mpRegen`, `skills` (ids from `src/game/data/skills/index.ts`), the
+   `art` paths, and optionally `starUp` (per-star shard override; omitted stars
+   fall back to `STAR_UP_SHARDS`).
+2. Register it: `import` + one array line in `src/game/data/characters/index.ts`.
 3. Art at `public/assets/characters/<id>/portrait.png` (512×512) and `battle.png`
-   (420×560); optional `splash.png` (wide) referenced as `art.splash` — see
-   "Menu wallpaper". No real art yet? add `["<id>", "<element>", <rarity>]` to
-   the `characters` array in `scripts/gen-placeholders.mjs`, then `npm run
-   gen:art`.
-4. Optional: add the id to a banner's `featured` in
-   `src/game/data/gacha/banners/index.ts`.
-5. `npm run gen:sql` and re-run `supabase/generated/config_seed.sql` in the
-   Supabase SQL editor (gacha needs the rarity server-side).
-6. `npm test` — `data-integrity.test.ts` checks the art files + skill ids,
-   `sql-seed.test.ts` checks the seed is fresh.
+   (420×560); optional `splash.png` (wide) as `art.splash` — see "Menu
+   wallpaper". No real art yet? add `["<id>", "<element>", <rarity>]` to the
+   `characters` array in `scripts/gen-placeholders.mjs`, then `npm run gen:art`.
+4. Optional: rate it up on a banner (see "Adding / scheduling a banner").
+5. `npm run validate` → `npm run gen:sql` → re-run `config_seed.sql` in the
+   Supabase SQL editor.
+6. `npm test`, commit, push.
 
 Rarity is a field on the character object, not a folder; the gacha filters the
-pool by it. Every art path a character references (`portrait`, `battle`, and
-`splash` if set) must exist on disk or `data-integrity.test.ts` fails. `art.*`
-can point anywhere, but folder == id by convention.
+pool by it. `validate` / `gen:sql` fail if any referenced art file is missing or
+a skill ref is unknown. `art.*` can point anywhere, but folder == id by
+convention.
+
+### Adding / scheduling a banner
+
+One file per banner. A banner names character **IDs** + rate-up + window — it
+never touches a character definition.
+
+1. `src/game/data/gacha/banners/<id>.ts` — export a `Banner`: `id`, `name`,
+   `costPerPull`, `featured: { 5: ["<charId>"], 4: [...] }`, optional
+   `featuredRate: { 5: 0.55 }` (featured-vs-off split; default 0.5 / 0.5),
+   optional `poolCharacters` (restrict the non-featured pool), optional
+   `startsAt` / `endsAt` (ISO — the server rejects out-of-window pulls), `art`.
+2. `import` + one array line in `src/game/data/gacha/banners/index.ts`.
+3. Banner art `public/assets/banners/<id>.png` (or add to
+   `scripts/gen-placeholders.mjs` + `npm run gen:art`).
+4. `npm run validate` → `npm run gen:sql` → re-run `config_seed.sql` in Supabase.
+5. `npm test`, commit, push. It goes live at `startsAt` and closes at `endsAt`
+   with no redeploy.
 
 ### Renaming a character id
 
@@ -180,8 +210,9 @@ it).
 1. Rename the data file, its `export const`, the `id:` field, and the `art`
    folder paths; rename `public/assets/characters/<old>/` → `<new>/`.
 2. Update `characters/index.ts`, the `characters` list in
-   `scripts/gen-placeholders.mjs`, any `gacha/banners/index.ts`
-   `featured`/`poolCharacters` entry, and the hardcoded ids in the test fixtures
+   `scripts/gen-placeholders.mjs`, any banner file
+   (`src/game/data/gacha/banners/*.ts`) that lists the id in
+   `featured`/`poolCharacters`, and the hardcoded ids in the test fixtures
    (`src/game/{gacha,party}.test.ts`, `src/game/engine/battle.test.ts`) and
    `src/screens/BattleSandbox.tsx`.
 3. `npm run gen:sql` → re-run `config_seed.sql` in the SQL editor.

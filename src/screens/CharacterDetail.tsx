@@ -44,7 +44,7 @@ export function CharacterDetail() {
     !!lvlCost &&
     (currencies?.gold ?? 0) >= lvlCost.gold &&
     (currencies?.xp_items ?? 0) >= lvlCost.xp_items;
-  const starCost = starUpCost(owned.star);
+  const starCost = starUpCost(owned.star, c);
   const canStar = starCost !== null && owned.dupe_shards >= starCost;
 
   async function run(fn: () => Promise<void>) {

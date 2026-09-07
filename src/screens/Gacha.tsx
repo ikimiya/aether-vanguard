@@ -4,9 +4,12 @@ import { BANNERS } from "../game/data/gacha/banners";
 import { getCharacter } from "../game/data/characters";
 import { RARITIES } from "../game/data/gacha/rarities";
 import { pullBanner } from "../lib/operations";
-import type { PullOutcome } from "../game/gacha";
+import { bannerActive, type PullOutcome } from "../game/gacha";
 import { assetUrl } from "../ui/assets";
 import { SummonAnimation } from "../gacha/SummonAnimation";
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
 export function Gacha() {
   const { currencies, gachaState, reload } = useGameData();
@@ -108,14 +111,24 @@ export function Gacha() {
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
 
       <div className="stack">
-        {BANNERS.map((b) => {
-          const can1 = (currencies?.gems ?? 0) >= b.costPerPull;
-          const can10 = (currencies?.gems ?? 0) >= b.costPerPull * 10;
+        {BANNERS.filter((b) => !b.endsAt || Date.parse(b.endsAt) > Date.now()).map((b) => {
+          const open = bannerActive(b);
+          const can1 = open && (currencies?.gems ?? 0) >= b.costPerPull;
+          const can10 = open && (currencies?.gems ?? 0) >= b.costPerPull * 10;
+          const windowChip =
+            b.startsAt && !open
+              ? `Starts ${fmtDate(b.startsAt)}`
+              : b.endsAt
+                ? `Ends ${fmtDate(b.endsAt)}`
+                : null;
           return (
             <div key={b.id} className="panel" style={{ padding: 0, overflow: "hidden" }}>
               <img src={assetUrl(b.art)} alt={b.name} style={{ width: "100%" }} />
               <div style={{ padding: "var(--s-4)" }}>
-                <strong>{b.name}</strong>
+                <div className="row" style={{ justifyContent: "space-between" }}>
+                  <strong>{b.name}</strong>
+                  {windowChip && <span className="chip">{windowChip}</span>}
+                </div>
                 {b.featured[5]?.length ? (
                   <p className="muted" style={{ fontSize: "var(--fs-sm)", margin: "var(--s-2) 0" }}>
                     Rate-up: {b.featured[5].map((id) => getCharacter(id).name).join(", ")}

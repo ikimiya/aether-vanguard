@@ -23,6 +23,24 @@ export interface PullOutcome {
 
 export const FOUR_STAR_FEATURED_CHANCE = 0.5;
 
+/** Featured-vs-off-featured split for a rarity slot on this banner. Per-banner
+ *  `featuredRate` overrides the global default. */
+function featuredRate(banner: Banner, rarity: Rarity): number {
+  return (
+    banner.featuredRate?.[rarity] ??
+    (rarity === 5 ? FEATURED_5STAR_CHANCE : FOUR_STAR_FEATURED_CHANCE)
+  );
+}
+
+/** Whether the banner is open at `now`. The server (`pull_banner`) is the
+ *  authority; the UI uses this to hide/disable closed banners. */
+export function bannerActive(banner: Banner, now: Date = new Date()): boolean {
+  const t = now.getTime();
+  if (banner.startsAt && t < Date.parse(banner.startsAt)) return false;
+  if (banner.endsAt && t >= Date.parse(banner.endsAt)) return false;
+  return true;
+}
+
 function rollRarity(rng: Rng, since5: number, since4: number): Rarity {
   if (since5 >= PITY.hard5star) return 5;
 
@@ -59,7 +77,7 @@ function pickCharacter(
   const pool = poolFor(banner, rarity);
 
   if (rarity === 5 && featured.length > 0) {
-    if (ctx.guaranteed || rngChance(rng, FEATURED_5STAR_CHANCE)) {
+    if (ctx.guaranteed || rngChance(rng, featuredRate(banner, 5))) {
       ctx.guaranteed = false;
       return { id: rngPick(rng, featured), featured: true };
     }
@@ -68,7 +86,7 @@ function pickCharacter(
     return { id: rngPick(rng, off.length ? off : featured), featured: false };
   }
 
-  if (rarity === 4 && featured.length > 0 && rngChance(rng, FOUR_STAR_FEATURED_CHANCE)) {
+  if (rarity === 4 && featured.length > 0 && rngChance(rng, featuredRate(banner, 4))) {
     return { id: rngPick(rng, featured), featured: true };
   }
 

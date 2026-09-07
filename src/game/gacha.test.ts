@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { rollPulls, type GachaStateData } from "./gacha";
+import { bannerActive, rollPulls, type GachaStateData } from "./gacha";
 import { RATE_UP_SERAPHINE, STANDARD_BANNER } from "./data/gacha/banners";
 import { PITY, RARITIES } from "./data/gacha/rarities";
 import { getCharacter } from "./data/characters";
+import type { Banner } from "./types";
 
 const fresh: GachaStateData = {
   pulls_since_5star: 0,
@@ -70,5 +71,29 @@ describe("rollPulls", () => {
     for (const o of outcomes) {
       expect(getCharacter(o.characterId).rarity).toBe(o.rarity);
     }
+  });
+
+  it("a per-banner featuredRate of 1 always gives the featured 5★", () => {
+    const banner: Banner = { ...RATE_UP_SERAPHINE, featuredRate: { 5: 1 } };
+    const primed: GachaStateData = { ...fresh, pulls_since_5star: PITY.hard5star - 1 };
+    for (let seed = 0; seed < 60; seed++) {
+      const { outcomes } = rollPulls(banner, 1, primed, [], seed);
+      expect(outcomes[0].rarity).toBe(5);
+      expect(outcomes[0].isFeatured).toBe(true);
+      expect(outcomes[0].characterId).toBe("seraphine");
+    }
+  });
+});
+
+describe("bannerActive", () => {
+  const base = STANDARD_BANNER;
+  it("is true with no window", () => {
+    expect(bannerActive(base)).toBe(true);
+  });
+  it("respects startsAt / endsAt", () => {
+    const b: Banner = { ...base, startsAt: "2030-01-01T00:00:00Z", endsAt: "2030-02-01T00:00:00Z" };
+    expect(bannerActive(b, new Date("2029-12-01T00:00:00Z"))).toBe(false);
+    expect(bannerActive(b, new Date("2030-01-15T00:00:00Z"))).toBe(true);
+    expect(bannerActive(b, new Date("2030-03-01T00:00:00Z"))).toBe(false);
   });
 });

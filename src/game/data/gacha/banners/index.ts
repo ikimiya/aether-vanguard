@@ -1,26 +1,12 @@
 import type { Banner } from "../../../types";
+import { STANDARD_BANNER } from "./standard";
+import { RATE_UP_SERAPHINE } from "./rate-up-seraphine";
 
-export const STANDARD_BANNER: Banner = {
-  id: "standard",
-  name: "Vanguard Roll",
-  costPerPull: 150,
-  featured: {},
-  art: "assets/banners/standard.png",
-  standard: true,
-};
-
-export const RATE_UP_SERAPHINE: Banner = {
-  id: "rate-up-seraphine",
-  name: "Dawnspeaker — Seraphine",
-  costPerPull: 160,
-  featured: {
-    5: ["seraphine"],
-    4: ["ayaka", "hana", "sora"],
-  },
-  art: "assets/banners/rate-up-seraphine.png",
-};
-
+// One file per banner. To add one: create ./<id>.ts, then add the import + a
+// line here. Rate-up / duration live on the banner object — never on a character.
 export const BANNERS: Banner[] = [RATE_UP_SERAPHINE, STANDARD_BANNER];
+
+export { STANDARD_BANNER, RATE_UP_SERAPHINE };
 
 export const BANNERS_BY_ID: Record<string, Banner> = Object.fromEntries(
   BANNERS.map((b) => [b.id, b]),

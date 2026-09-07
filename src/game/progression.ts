@@ -59,16 +59,23 @@ export function totalLevelUpCost(from: number, to: number): LevelUpCost {
   return { gold, xp_items };
 }
 
-/** Shards to reach each star (target star -> cost). Seeded into `app.star_up_cost`. */
+/** Global default shards to reach each star (target star -> cost). Seeded into
+ *  `app.star_up_cost` under character_key '*'; a character's own `starUp` map
+ *  overrides individual entries. */
 export const STAR_UP_SHARDS: Record<number, number> = { 2: 20, 3: 40, 4: 80, 5: 150 };
 
 /** Endless waves above this are rejected by `submit_endless` as implausible. */
 export const ENDLESS_MAX_WAVE = 500;
 
-/** Shards needed to go from `star` to `star + 1`, or null at max star. */
-export function starUpCost(star: number): number | null {
+/** Shards to go from `star` to `star + 1`, or null at max star. A character's
+ *  `starUp` entry for the target star wins over the global curve. */
+export function starUpCost(
+  star: number,
+  character?: Pick<Character, "starUp">,
+): number | null {
   if (star >= MAX_STAR) return null;
-  return STAR_UP_SHARDS[star + 1];
+  const target = star + 1;
+  return character?.starUp?.[target as 2 | 3 | 4 | 5] ?? STAR_UP_SHARDS[target];
 }
 
 export function dupeShardYield(rarity: Rarity): number {
