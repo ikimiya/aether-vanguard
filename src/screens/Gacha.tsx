@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useUserId } from "../auth/useSession";
 import { useGameData } from "../game-data/GameDataProvider";
 import { BANNERS } from "../game/data/gacha/banners";
 import { getCharacter } from "../game/data/characters";
@@ -9,7 +8,6 @@ import type { PullOutcome } from "../game/gacha";
 import { assetUrl } from "../ui/assets";
 
 export function Gacha() {
-  const userId = useUserId()!;
   const { currencies, gachaState, reload } = useGameData();
   const [results, setResults] = useState<PullOutcome[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -19,7 +17,7 @@ export function Gacha() {
     setBusy(true);
     setError(null);
     try {
-      const outcomes = await pullBanner(userId, bannerId, count);
+      const outcomes = await pullBanner(bannerId, count);
       setResults(outcomes);
       await reload();
     } catch (e) {

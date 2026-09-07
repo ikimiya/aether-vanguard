@@ -24,6 +24,8 @@ sections below.
 | Single test file | `npm test -- src/game/engine/battle.test.ts` |
 | Watch tests | `npm run test:watch` |
 | Type-check only | `npm run typecheck` |
+| Regenerate placeholder art | `npm run gen:art` |
+| Regenerate the DB config seed | `npm run gen:sql` (after any `src/game/data/` change) |
 
 Tests run in Node (no jsdom). Anything imported into a `*.test.ts` file must not
 pull in the DOM, React, or Phaser — the engine/data/gacha/progression modules are
@@ -32,11 +34,16 @@ written to be importable from Node.
 ## Local setup
 
 1. `npm install`
-2. Create a Supabase project. Run `supabase/migrations/0001_init.sql` in the SQL
-   editor (or `supabase db push` with the CLI linked).
+2. Create a Supabase project. In the SQL editor run, in order:
+   `supabase/migrations/0001_init.sql`, then
+   `supabase/migrations/0002_server_authoritative.sql`, then
+   `supabase/generated/config_seed.sql`.
 3. `cp .env.example .env` and fill `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
    from Supabase project settings → API.
 4. `npm run dev`.
+
+Optionally paste `supabase/verify.sql` (edit the throwaway user id first) to
+smoke-test the RPCs and the RLS lockdown.
 
 ## Architecture
 
@@ -61,17 +68,24 @@ Supporting:
 
 - **`src/lib/supabase.ts`** — the Supabase client singleton (has a "not
   configured" fallback so the app still renders before `.env` is set).
-- **`src/lib/db/`** — the *only* place that reads/writes Supabase tables. One
+- **`src/lib/db/`** — the *only* place that *reads* Supabase tables. One
   repository module per table (`roster.ts`, `currency.ts`, `progress.ts`,
-  `gacha.ts`, `endless.ts`, `profile.ts`). Screens never call `supabase.from(...)`.
-- **`src/lib/operations.ts`** — cross-table flows that combine repos with pure
-  game logic: `pullBanner`, `claimStageRewards`, `levelUpCharacter`,
-  `starUpCharacter`, `submitEndlessRun`. Screens call these for mutations.
+  `gacha.ts`, `endless.ts`, `profile.ts`), reads only. Screens never call
+  `supabase.from(...)`.
+- **`src/lib/operations.ts`** — the *only* place that *writes* the economy. Each
+  function (`pullBanner`, `claimStageRewards`, `levelUpCharacter`,
+  `starUpCharacter`, `submitEndlessRun`) is a thin `supabase.rpc(...)` call to a
+  `SECURITY DEFINER` function in `0002_server_authoritative.sql`. The client has
+  no direct INSERT/UPDATE on the economy tables. Screens call these, then
+  `useGameData().reload()`.
 - **`src/game-data/GameDataProvider.tsx`** — loads currencies/roster/progress/
   gacha_state/endless once per session; `useGameData()` exposes them plus
   `reload()`. Screens read from it and call `reload()` after an operation.
 - **`src/game/progression.ts`** — level/star → stats, costs, rarity caps. Pure.
-- **`src/game/gacha.ts`** — pull rolls: pity, featured 50/50, dupe→shard. Pure.
+  Used for UI previews; the authoritative cost math is in `level_up_character()`.
+- **`src/game/gacha.ts`** — reference implementation of the pull rules (pity,
+  featured 50/50, dupe→shard). The authoritative version is `pull_banner()` in
+  SQL; the tests here are the spec both must satisfy.
 - **`src/game/endless.ts`** — deterministic scaled wave generator. Pure.
 - **`src/battle/BattleView.tsx`** — React shell that owns a `BattleState`,
   renders `<PhaserBattle>` plus the action/target/swap/result UI.
@@ -85,17 +99,40 @@ tester) are outside the auth guard. Everything else is under `RequireAuth` +
 
 ### Data ownership
 
-Repo data (stats, skills, art paths, rarity, enemy/stage/wave defs, gacha rates)
-lives in `src/game/data/`. The DB stores only per-user mutable state:
-`profiles`, `currencies`, `owned_characters` (keyed by `character_key` — a string
-that must resolve against `src/game/data/characters/`), `stage_progress`,
-`endless_runs`, `gacha_state`. Every table has RLS locked to `auth.uid()`.
+Balance data (rarity, stats, skills, art paths, enemy/stage/wave defs, gacha
+rates, costs) lives in `src/game/data/` + `src/game/progression.ts`. It is the
+single source of truth. `npm run gen:sql` mirrors the slice the server needs
+(character→rarity, rate/pity constants, banner configs, stage rewards, star-up
+costs) into `supabase/generated/config_seed.sql`, which seeds the `app.*` config
+tables the RPCs read. `src/game/data/sql-seed.test.ts` fails if the seed is stale.
+
+The `public` DB tables store only per-user mutable state: `profiles`,
+`currencies`, `owned_characters` (keyed by `character_key`, must resolve against
+`src/game/data/characters/`), `stage_progress`, `endless_runs`, `gacha_state`.
+RLS locks every row to `auth.uid()`; the economy tables now expose SELECT only,
+with all writes going through the RPCs.
+
+**Residual trust gap:** a battle's outcome (won / rounds / no-deaths) is asserted
+by the client — verifying it would need a server-side replay engine.
+`claim_stage_rewards` trusts those args but pays only the config-defined reward,
+gates first-clear on clearing the previous stage, and `submit_endless` clamps the
+wave. Acceptable for a hobby game; not for competitive leaderboards.
+
+### Changing balance
+
+Edit `src/game/data/` (or the cost constants in `progression.ts`) → `npm run
+gen:sql` → re-run `supabase/generated/config_seed.sql` in the SQL editor. If you
+change a *rule* (pity ramp, star cap, reward-merge logic) rather than a number,
+update both `src/game/gacha.ts`/`progression.ts` **and** the matching plpgsql in
+`0002_server_authoritative.sql`.
 
 ### Adding a character
 
 1. Drop art at `public/assets/characters/<id>/portrait.png` and `battle.png`.
 2. Add `src/game/data/characters/<id>.ts`.
 3. Add one line to `src/game/data/characters/index.ts`.
+4. `npm run gen:sql` and re-run `supabase/generated/config_seed.sql` so the
+   server knows the new character's rarity for gacha.
 
 Rarity is a field on the character object (`rarity: 3 | 4 | 5`), not a folder.
 The gacha filters the pool by that field.
@@ -120,9 +157,9 @@ per-repo configuration.
 - Battle randomness always goes through the seeded RNG in
   `src/game/engine/rng.ts` — never `Math.random()` in engine code — so battles
   are reproducible in tests.
-- Screens talk to the backend only through `src/lib/db/` repositories or
-  `src/lib/operations.ts`; after a mutation, call `useGameData().reload()`.
-- Currency writes are read-modify-write (single-player hobby game); `currencyRepo`
-  guards against overspend. A server-side atomic pull is a known future hardening
-  step, not built.
+- Screens read the backend through `src/lib/db/` repositories and write it only
+  through `src/lib/operations.ts` RPC wrappers; after a mutation, call
+  `useGameData().reload()`.
+- The economy is server-authoritative (see Data ownership). Don't add client-side
+  currency/roster writes — they'll be rejected by RLS. Add an RPC instead.
 - Endless battles currently start each wave at full HP/MP (no carry-over).

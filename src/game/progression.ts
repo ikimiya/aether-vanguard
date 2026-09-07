@@ -35,11 +35,15 @@ export interface LevelUpCost {
   xp_items: number;
 }
 
+/** Level-up cost coefficients. Also seeded into `app.game_constants` for the
+ *  server-side `level_up_character` RPC — keep the two in sync via `npm run gen:sql`. */
+export const LEVEL_COST = { goldBase: 40, goldPerLevel: 12, xpItemsDivisor: 8 } as const;
+
 /** Cost to go from `level` to `level + 1`. */
 export function levelUpCost(level: number): LevelUpCost {
   return {
-    gold: 40 + level * 12,
-    xp_items: 1 + Math.floor(level / 8),
+    gold: LEVEL_COST.goldBase + level * LEVEL_COST.goldPerLevel,
+    xp_items: 1 + Math.floor(level / LEVEL_COST.xpItemsDivisor),
   };
 }
 
@@ -55,7 +59,11 @@ export function totalLevelUpCost(from: number, to: number): LevelUpCost {
   return { gold, xp_items };
 }
 
-const STAR_UP_SHARDS: Record<number, number> = { 2: 20, 3: 40, 4: 80, 5: 150 };
+/** Shards to reach each star (target star -> cost). Seeded into `app.star_up_cost`. */
+export const STAR_UP_SHARDS: Record<number, number> = { 2: 20, 3: 40, 4: 80, 5: 150 };
+
+/** Endless waves above this are rejected by `submit_endless` as implausible. */
+export const ENDLESS_MAX_WAVE = 500;
 
 /** Shards needed to go from `star` to `star + 1`, or null at max star. */
 export function starUpCost(star: number): number | null {

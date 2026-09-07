@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserId } from "../auth/useSession";
 import { useGameData } from "../game-data/GameDataProvider";
 import { BattleView, type BattleResult } from "../battle/BattleView";
 import type { BattleConfig } from "../game/engine";
@@ -11,7 +10,6 @@ import { claimStageRewards, type StageRewardResult } from "../lib/operations";
 export function StageBattle() {
   const { stageId = "" } = useParams();
   const navigate = useNavigate();
-  const userId = useUserId()!;
   const { roster, reload } = useGameData();
   const [summary, setSummary] = useState<StageRewardResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -63,9 +61,8 @@ export function StageBattle() {
   async function finish(result: BattleResult) {
     setBusy(true);
     try {
-      const res = await claimStageRewards(userId, stage!.id, {
+      const res = await claimStageRewards(stage!.id, {
         cleared: result.won,
-        stars: 0,
         rounds: result.rounds,
         noDeaths: result.noDeaths,
       });

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserId } from "../auth/useSession";
 import { useGameData } from "../game-data/GameDataProvider";
 import { getCharacter } from "../game/data/characters";
 import { getSkill } from "../game/data/skills";
@@ -22,7 +21,6 @@ const STAT_LABELS: Record<keyof StatBlock, string> = {
 export function CharacterDetail() {
   const { characterKey = "" } = useParams();
   const navigate = useNavigate();
-  const userId = useUserId()!;
   const { roster, currencies, reload } = useGameData();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +96,7 @@ export function CharacterDetail() {
       <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem", flexWrap: "wrap" }}>
         <button
           disabled={busy || !canLevel}
-          onClick={() => run(() => levelUpCharacter(userId, owned.id, characterKey, owned.level + 1))}
+          onClick={() => run(() => levelUpCharacter(owned.id, owned.level + 1))}
         >
           {lvlCost
             ? `Level up (🪙 ${lvlCost.gold} · 📘 ${lvlCost.xp_items})`
@@ -107,7 +105,7 @@ export function CharacterDetail() {
         <button
           disabled={busy || !canStar}
           style={{ background: "var(--panel-2)" }}
-          onClick={() => run(() => starUpCharacter(userId, owned.id))}
+          onClick={() => run(() => starUpCharacter(owned.id))}
         >
           {starCost !== null ? `Star up (${owned.dupe_shards}/${starCost} shards)` : "Max star"}
         </button>

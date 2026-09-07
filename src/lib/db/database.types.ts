@@ -1,11 +1,19 @@
 /**
- * Hand-authored to match supabase/migrations/0001_init.sql, in the shape the
- * Supabase client's generics expect (Row/Insert/Update/Relationships per table).
- * If you adopt the Supabase CLI, regenerate with:
+ * Hand-authored to match supabase/migrations/0001_init.sql +
+ * 0002_server_authoritative.sql, in the shape the Supabase client's generics
+ * expect. If you adopt the Supabase CLI, regenerate with:
  *   supabase gen types typescript --linked > src/lib/db/database.types.ts
  */
 
 export type Rarity = 3 | 4 | 5;
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
 type NoRelationships = [];
 
@@ -97,7 +105,33 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      pull_banner: {
+        Args: { p_banner_id: string; p_count: number };
+        Returns: Json;
+      };
+      claim_stage_rewards: {
+        Args: {
+          p_stage_id: string;
+          p_cleared: boolean;
+          p_rounds: number;
+          p_no_deaths: boolean;
+        };
+        Returns: Json;
+      };
+      level_up_character: {
+        Args: { p_owned_id: string; p_target_level: number };
+        Returns: undefined;
+      };
+      star_up_character: {
+        Args: { p_owned_id: string };
+        Returns: undefined;
+      };
+      submit_endless: {
+        Args: { p_wave: number };
+        Returns: number;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

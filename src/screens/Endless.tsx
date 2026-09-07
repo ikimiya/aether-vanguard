@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUserId } from "../auth/useSession";
 import { useGameData } from "../game-data/GameDataProvider";
 import { BattleView, type BattleResult } from "../battle/BattleView";
 import type { BattleConfig } from "../game/engine";
@@ -12,7 +11,6 @@ type Phase = { kind: "briefing" } | { kind: "fighting" } | { kind: "done"; clear
 
 export function Endless() {
   const navigate = useNavigate();
-  const userId = useUserId()!;
   const { roster, endless, reload } = useGameData();
   const [seed] = useState(() => Date.now() % 1_000_000);
   const [wave, setWave] = useState(1);
@@ -34,7 +32,7 @@ export function Endless() {
       return;
     }
     const cleared = wave - 1;
-    await submitEndlessRun(userId, cleared);
+    await submitEndlessRun(cleared);
     await reload();
     setPhase({ kind: "done", cleared });
   }
@@ -78,7 +76,7 @@ export function Endless() {
         <button
           style={{ background: "var(--panel-2)" }}
           onClick={async () => {
-            await submitEndlessRun(userId, wave - 1);
+            await submitEndlessRun(wave - 1);
             await reload();
             setPhase({ kind: "done", cleared: wave - 1 });
           }}

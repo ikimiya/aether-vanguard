@@ -21,8 +21,15 @@ cp .env.example .env   # fill in your Supabase URL + anon key
 npm run dev
 ```
 
-You also need to create a Supabase project and run `supabase/migrations/0001_init.sql`
-against it. See [`CLAUDE.md`](./CLAUDE.md) for architecture and full setup notes.
+You also need a Supabase project. In its SQL editor, run in order:
+
+1. `supabase/migrations/0001_init.sql` — tables, RLS, new-user trigger
+2. `supabase/migrations/0002_server_authoritative.sql` — economy RPCs + write lockdown
+3. `supabase/generated/config_seed.sql` — balance data for the RPCs
+
+Then, in Auth settings, add your dev/Pages origins to the redirect URLs (and turn
+off "Confirm email" if you want one-step signup). See [`CLAUDE.md`](./CLAUDE.md)
+for architecture and the balance-change workflow.
 
 ## Scripts
 
@@ -30,6 +37,7 @@ against it. See [`CLAUDE.md`](./CLAUDE.md) for architecture and full setup notes
 - `npm run build` — production build to `dist/`
 - `npm test` — run the test suite
 - `npm run preview` — serve the production build locally
+- `npm run gen:sql` — regenerate `config_seed.sql` after a `src/game/data/` change
 
 ## Deploying
 

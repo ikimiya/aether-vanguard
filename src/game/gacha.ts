@@ -1,3 +1,7 @@
+// Reference implementation of the gacha rules. The AUTHORITATIVE version runs in
+// Postgres — `public.pull_banner()` in supabase/migrations/0002_server_authoritative.sql
+// — seeded from the same data via `npm run gen:sql`. Keep the two in sync; the tests
+// here are the spec. This module is still handy for client-side previews.
 import type { Banner, Rarity } from "./types";
 import { CHARACTERS, getCharacter } from "./data/characters";
 import { FEATURED_5STAR_CHANCE, PITY, RARITIES } from "./data/gacha/rarities";
@@ -17,7 +21,7 @@ export interface PullOutcome {
   dupeShards: number;
 }
 
-const FOUR_STAR_FEATURED_CHANCE = 0.5;
+export const FOUR_STAR_FEATURED_CHANCE = 0.5;
 
 function rollRarity(rng: Rng, since5: number, since4: number): Rarity {
   if (since5 >= PITY.hard5star) return 5;
