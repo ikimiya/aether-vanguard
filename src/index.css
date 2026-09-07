@@ -45,3 +45,31 @@ button:disabled {
 a {
   color: var(--accent-2);
 }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+input {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid #333a4f;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+}
+
+input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
