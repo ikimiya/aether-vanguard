@@ -1,0 +1,103 @@
+import type { Enemy } from "../../types";
+
+const list: Enemy[] = [
+  {
+    id: "wisp",
+    name: "Ember Wisp",
+    element: "fire",
+    baseStats: { hp: 520, atk: 62, matk: 58, def: 30, mdef: 28, spd: 92 },
+    growth: { hp: 44, atk: 5, matk: 4.5, def: 2.4, mdef: 2.2, spd: 0.7 },
+    maxMp: 60,
+    mpRegen: 10,
+    skills: [],
+    art: { battle: "assets/enemies/wisp/battle.png" },
+  },
+  {
+    id: "frost-hound",
+    name: "Frost Hound",
+    element: "ice",
+    baseStats: { hp: 680, atk: 84, matk: 40, def: 40, mdef: 34, spd: 104 },
+    growth: { hp: 52, atk: 6.5, matk: 3, def: 3, mdef: 2.6, spd: 0.9 },
+    maxMp: 50,
+    mpRegen: 8,
+    skills: ["frost-pierce"],
+    art: { battle: "assets/enemies/frost-hound/battle.png" },
+  },
+  {
+    id: "gale-sprite",
+    name: "Gale Sprite",
+    element: "wind",
+    baseStats: { hp: 460, atk: 70, matk: 76, def: 26, mdef: 32, spd: 122 },
+    growth: { hp: 40, atk: 5.5, matk: 6, def: 2, mdef: 2.6, spd: 1.1 },
+    maxMp: 70,
+    mpRegen: 12,
+    skills: ["gale-slash"],
+    art: { battle: "assets/enemies/gale-sprite/battle.png" },
+  },
+  {
+    id: "stone-golem",
+    name: "Stone Golem",
+    element: "earth",
+    baseStats: { hp: 1180, atk: 96, matk: 20, def: 78, mdef: 44, spd: 66 },
+    growth: { hp: 96, atk: 7, matk: 1.5, def: 5.4, mdef: 3, spd: 0.4 },
+    maxMp: 40,
+    mpRegen: 6,
+    skills: ["stone-maul"],
+    art: { battle: "assets/enemies/stone-golem/battle.png" },
+  },
+  {
+    id: "storm-drake",
+    name: "Storm Drake",
+    element: "lightning",
+    baseStats: { hp: 820, atk: 92, matk: 110, def: 44, mdef: 48, spd: 108 },
+    growth: { hp: 60, atk: 7, matk: 8.5, def: 3.2, mdef: 3.4, spd: 0.9 },
+    maxMp: 90,
+    mpRegen: 12,
+    skills: ["thunder-spike", "chain-lightning"],
+    art: { battle: "assets/enemies/storm-drake/battle.png" },
+  },
+  {
+    id: "tide-serpent",
+    name: "Tide Serpent",
+    element: "water",
+    baseStats: { hp: 900, atk: 88, matk: 84, def: 46, mdef: 52, spd: 98 },
+    growth: { hp: 66, atk: 6.5, matk: 6.5, def: 3.4, mdef: 3.6, spd: 0.8 },
+    maxMp: 80,
+    mpRegen: 11,
+    skills: ["frost-pierce"],
+    art: { battle: "assets/enemies/tide-serpent/battle.png" },
+  },
+  {
+    id: "shade",
+    name: "Creeping Shade",
+    element: "dark",
+    baseStats: { hp: 700, atk: 104, matk: 92, def: 38, mdef: 40, spd: 112 },
+    growth: { hp: 54, atk: 8, matk: 7, def: 2.8, mdef: 3, spd: 1.0 },
+    maxMp: 85,
+    mpRegen: 12,
+    skills: ["hex"],
+    art: { battle: "assets/enemies/shade/battle.png" },
+  },
+  {
+    id: "cinder-wyrm",
+    name: "Cinder Wyrm",
+    element: "fire",
+    boss: true,
+    baseStats: { hp: 4200, atk: 150, matk: 160, def: 90, mdef: 88, spd: 100 },
+    growth: { hp: 320, atk: 11, matk: 12, def: 5.5, mdef: 5.2, spd: 0.8 },
+    maxMp: 160,
+    mpRegen: 18,
+    skills: ["inferno-wave", "ember-lance", "war-cry"],
+    art: { battle: "assets/enemies/cinder-wyrm/battle.png" },
+  },
+];
+
+export const ENEMIES: Record<string, Enemy> = Object.fromEntries(
+  list.map((e) => [e.id, e]),
+);
+
+export function getEnemy(id: string): Enemy {
+  const e = ENEMIES[id];
+  if (!e) throw new Error(`Unknown enemy: ${id}`);
+  return e;
+}

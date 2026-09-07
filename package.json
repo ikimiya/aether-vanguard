@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "gen:art": "node scripts/gen-placeholders.mjs"
   },
   "dependencies": {
     "phaser": "^3.80.1",
