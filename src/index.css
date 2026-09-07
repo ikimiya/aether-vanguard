@@ -473,6 +473,75 @@ button.card:hover:not(:disabled) {
   grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 132px), 1fr));
 }
 
+/* home hub: fixed 5-across team strip */
+.team-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.team-strip .card {
+  padding: var(--s-2);
+}
+.team-strip .card__name {
+  font-size: var(--fs-xs);
+}
+.team-strip .card__meta {
+  font-size: 0.68rem;
+}
+
+/* home hub: mode-select buttons */
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-height: 118px;
+  padding: var(--s-4);
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--text);
+  transition:
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.mode-card:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+}
+.mode-card svg {
+  width: 26px;
+  height: 26px;
+  color: var(--accent-2);
+}
+.mode-card__label {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.mode-card__sub {
+  margin-top: auto;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+@media (max-width: 460px) {
+  .mode-card {
+    min-height: 96px;
+    padding: var(--s-3);
+  }
+  .mode-card__label {
+    font-size: var(--fs-md);
+  }
+}
+
 .list {
   display: grid;
   gap: var(--s-2);
