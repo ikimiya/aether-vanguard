@@ -14,9 +14,17 @@ const BattleSandbox = lazy(() =>
 
 // HashRouter: GitHub Pages serves a single index.html, so client-side deep
 // links (`/gacha`, `/battle`) must live after the `#` to avoid 404s.
+const battleSandbox = (
+  <Suspense fallback={<p>Loading battle…</p>}>
+    <BattleSandbox />
+  </Suspense>
+);
+
 export const router = createHashRouter([
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
+  // Dev sandbox: fixed team, no account data — kept outside the auth guard.
+  { path: "/sandbox", element: battleSandbox },
   {
     path: "/",
     element: (
@@ -26,14 +34,7 @@ export const router = createHashRouter([
     ),
     children: [
       { index: true, element: <Home /> },
-      {
-        path: "battle",
-        element: (
-          <Suspense fallback={<p>Loading battle…</p>}>
-            <BattleSandbox />
-          </Suspense>
-        ),
-      },
+      { path: "battle", element: battleSandbox },
     ],
   },
 ]);

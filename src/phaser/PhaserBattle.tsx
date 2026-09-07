@@ -1,41 +1,55 @@
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
+import type { BattleConfig, BattleState } from "../game/engine";
 import { BattleScene } from "./scenes/BattleScene";
 
-const WIDTH = 900;
-const HEIGHT = 506;
+const W = 900;
+const H = 506;
 
-/**
- * Mounts a Phaser game into a div and tears it down on unmount. Milestone 6
- * extends this with props for the encounter and callbacks for the result.
- */
-export function PhaserBattle() {
+/** Renders the battlefield for `state`. All input UI is React, layered over this. */
+export function PhaserBattle({ config, state }: { config: BattleConfig; state: BattleState }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const gameRef = useRef<Phaser.Game | null>(null);
 
   useEffect(() => {
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: hostRef.current!,
-      width: WIDTH,
-      height: HEIGHT,
+      width: W,
+      height: H,
       backgroundColor: "#12151f",
-      scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-      },
-      scene: [BattleScene],
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     });
-
-    return () => game.destroy(true);
+    game.registry.set("config", config);
+    game.registry.set("state", state);
+    game.scene.add("battle", BattleScene, true);
+    gameRef.current = game;
+    return () => {
+      game.destroy(true);
+      gameRef.current = null;
+    };
+    // config/state intentionally read once here; updates flow through the effect below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game) return;
+    // create() reads this if the scene hasn't started yet
+    game.registry.set("state", state);
+    const scene = game.scene.getScene("battle") as BattleScene | undefined;
+    if (scene && scene.scene.settings.status === Phaser.Scenes.RUNNING) {
+      scene.syncState(state);
+    }
+  }, [state]);
 
   return (
     <div
       ref={hostRef}
       style={{
         width: "100%",
-        maxWidth: WIDTH,
-        aspectRatio: `${WIDTH} / ${HEIGHT}`,
+        maxWidth: W,
+        aspectRatio: `${W} / ${H}`,
         margin: "0 auto",
         borderRadius: 12,
         overflow: "hidden",
