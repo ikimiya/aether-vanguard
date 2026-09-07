@@ -35,30 +35,49 @@ export function Gacha() {
         <div className="page-head">
           <h1>Results</h1>
         </div>
-        <div className="card-grid" style={{ "--card-min": "116px" } as React.CSSProperties}>
-          {results.map((o, i) => {
-            const c = getCharacter(o.characterId);
-            return (
-              <div
-                key={i}
-                className="card card--framed"
-                style={{
-                  "--rarity": RARITIES[o.rarity].color,
-                  animation: "cardReveal 0.35s ease both",
-                  animationDelay: `${i * 60}ms`,
-                } as React.CSSProperties}
-              >
-                <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
-                <div className="card__name">{c.name}</div>
-                <div style={{ fontSize: "var(--fs-xs)", color: RARITIES[o.rarity].color }}>
-                  {RARITIES[o.rarity].label}
-                  {o.isFeatured ? " ★" : ""}
-                </div>
-                <div className="card__meta">{o.isNew ? "NEW" : `+${o.dupeShards} shards`}</div>
-              </div>
-            );
-          })}
-        </div>
+        {(() => {
+          const cols = Math.min(results.length, 5);
+          return (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                gap: "var(--s-2)",
+                maxWidth: cols * 132,
+                margin: "0 auto",
+              }}
+            >
+              {results.map((o, i) => {
+                const c = getCharacter(o.characterId);
+                return (
+                  <div
+                    key={i}
+                    className="card card--framed"
+                    style={{
+                      "--rarity": RARITIES[o.rarity].color,
+                      padding: "var(--s-2)",
+                      animation: "cardReveal 0.35s ease both",
+                      animationDelay: `${i * 55}ms`,
+                    } as React.CSSProperties}
+                  >
+                    <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
+                    <div className="card__name truncate">{c.name}</div>
+                    <div
+                      className="truncate"
+                      style={{ fontSize: "var(--fs-xs)", color: RARITIES[o.rarity].color }}
+                    >
+                      {RARITIES[o.rarity].label}
+                      {o.isFeatured ? " ★" : ""}
+                    </div>
+                    <div className="card__meta truncate">
+                      {o.isNew ? "NEW" : `+${o.dupeShards}`}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
         <button className="btn--ghost" style={{ marginTop: "var(--s-5)" }} onClick={() => setResults(null)}>
           Back to banners
         </button>
