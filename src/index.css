@@ -267,7 +267,8 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s-3);
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-3);
   padding: max(var(--s-3), env(safe-area-inset-top)) max(var(--s-4), env(safe-area-inset-right)) var(--s-3)
     max(var(--s-4), env(safe-area-inset-left));
   background: var(--bg);
@@ -295,40 +296,6 @@ a.brand:hover {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-}
-
-.nav {
-  flex: none;
-  display: flex;
-  gap: var(--s-2);
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: var(--s-3) var(--s-4) 0;
-  width: min(100% - 2 * var(--s-4), 960px);
-  margin: 0 auto;
-}
-.nav-link {
-  padding: 0.4rem 0.9rem;
-  border-radius: var(--r-pill);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--text-dim);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  transition:
-    color var(--dur) var(--ease),
-    background var(--dur) var(--ease),
-    border-color var(--dur) var(--ease);
-}
-.nav-link:hover {
-  text-decoration: none;
-  color: var(--text);
-  border-color: var(--line-strong);
-}
-.nav-link.is-active {
-  color: #fff;
-  background: var(--accent-gradient);
-  border-color: transparent;
 }
 
 /* the single scroll region */
@@ -364,48 +331,7 @@ a.brand:hover {
   font-size: var(--fs-sm);
 }
 
-/* bottom tab bar (mobile) — a flex row of the .app column */
-.bottom-nav {
-  flex: none;
-  z-index: 20;
-  display: none;
-  justify-content: space-around;
-  gap: var(--s-1);
-  padding: var(--s-2) var(--s-2) calc(var(--s-2) + env(safe-area-inset-bottom, 0px));
-  background: var(--surface-1);
-  background: color-mix(in srgb, var(--bg) 88%, var(--surface-1));
-  border-top: 1px solid var(--line);
-  box-shadow: 0 -6px 20px -12px rgba(0, 0, 0, 0.7);
-}
-.bottom-nav__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
-  padding: var(--s-1) 0;
-  font-size: 0.66rem;
-  font-weight: 600;
-  color: var(--text-faint);
-}
-.bottom-nav__item:hover {
-  text-decoration: none;
-}
-.bottom-nav__item svg {
-  width: 22px;
-  height: 22px;
-}
-.bottom-nav__item.is-active {
-  color: var(--accent-2);
-}
-
 @media (max-width: 640px) {
-  .nav {
-    display: none;
-  }
-  .bottom-nav {
-    display: flex;
-  }
   .page {
     padding-top: var(--s-4);
   }
