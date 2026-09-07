@@ -75,34 +75,47 @@ html,
 body,
 #root {
   margin: 0;
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font: var(--fs-md) / 1.55 var(--font);
-  overflow-x: hidden;
+  overflow: hidden;
+  overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ambient depth behind everything */
+/* ambient animated backdrop — sits behind the whole client */
 body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 15% 12%, rgba(124, 92, 255, 0.18), transparent 70%),
+    radial-gradient(34% 40% at 88% 8%, rgba(53, 208, 186, 0.12), transparent 70%),
+    radial-gradient(45% 45% at 70% 95%, rgba(124, 92, 255, 0.1), transparent 70%);
+  animation: backdropDrift 26s ease-in-out infinite alternate;
+}
+/* soft vignette to frame the screen */
+body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(1100px circle at 12% -8%, rgba(124, 92, 255, 0.12), transparent 55%),
-    radial-gradient(900px circle at 100% 0%, rgba(53, 208, 186, 0.08), transparent 50%);
+  background: radial-gradient(120% 90% at 50% 40%, transparent 58%, rgba(0, 0, 0, 0.32));
 }
 
 #root {
   position: relative;
   z-index: 1;
+  height: 100%;
 }
 
 img {
@@ -239,23 +252,29 @@ input:focus {
 
 /* --------------------------------------------------------------- layout --- */
 
+/* the whole app is exactly one viewport; only .screen scrolls */
 .app {
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .appbar {
-  position: sticky;
-  top: 0;
+  flex: none;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
+  padding: max(var(--s-3), env(safe-area-inset-top)) max(var(--s-4), env(safe-area-inset-right)) var(--s-3)
+    max(var(--s-4), env(safe-area-inset-left));
   background: var(--bg);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 6px 20px -12px rgba(0, 0, 0, 0.7);
 }
 
 .brand {
@@ -279,11 +298,13 @@ a.brand:hover {
 }
 
 .nav {
+  flex: none;
   display: flex;
   gap: var(--s-2);
   flex-wrap: wrap;
+  justify-content: center;
   padding: var(--s-3) var(--s-4) 0;
-  max-width: 1080px;
+  width: min(100% - 2 * var(--s-4), 960px);
   margin: 0 auto;
 }
 .nav-link {
@@ -310,8 +331,17 @@ a.brand:hover {
   border-color: transparent;
 }
 
+/* the single scroll region */
+.screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .page {
-  width: min(100% - 2 * var(--s-4), 1080px);
+  width: min(100% - 2 * var(--s-4), 940px);
   margin: 0 auto;
   padding: var(--s-6) 0 var(--s-8);
 }
@@ -334,21 +364,18 @@ a.brand:hover {
   font-size: var(--fs-sm);
 }
 
-/* bottom tab bar (mobile) */
+/* bottom tab bar (mobile) — a flex row of the .app column */
 .bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: none;
   z-index: 20;
   display: none;
   justify-content: space-around;
   gap: var(--s-1);
   padding: var(--s-2) var(--s-2) calc(var(--s-2) + env(safe-area-inset-bottom, 0px));
-  background: var(--bg);
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--surface-1);
+  background: color-mix(in srgb, var(--bg) 88%, var(--surface-1));
   border-top: 1px solid var(--line);
+  box-shadow: 0 -6px 20px -12px rgba(0, 0, 0, 0.7);
 }
 .bottom-nav__item {
   display: flex;
@@ -380,7 +407,7 @@ a.brand:hover {
     display: flex;
   }
   .page {
-    padding-bottom: calc(var(--s-8) + 56px);
+    padding-top: var(--s-4);
   }
 }
 
@@ -622,6 +649,15 @@ a.list-row:hover {
   }
   to {
     background-position: -200% 0;
+  }
+}
+
+@keyframes backdropDrift {
+  from {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4%, 3%, 0) scale(1.12);
   }
 }
 

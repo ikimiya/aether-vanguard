@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { GameDataProvider, useGameData } from "./game-data/GameDataProvider";
@@ -63,6 +64,12 @@ function LayoutInner() {
   const { loading, error } = useGameData();
   const locked = useBattleLock();
   const { pathname } = useLocation();
+  const screenRef = useRef<HTMLElement>(null);
+
+  // each screen starts at the top — the scroll lives in .screen, not the window
+  useEffect(() => {
+    screenRef.current?.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="app">
@@ -81,19 +88,21 @@ function LayoutInner() {
         </nav>
       )}
 
-      <main className="page">
-        {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
-        {loading ? (
-          <div className="stack">
-            <div className="skeleton" style={{ height: 160 }} />
-            <div className="skeleton" style={{ height: 90 }} />
-            <div className="skeleton" style={{ height: 90 }} />
-          </div>
-        ) : (
-          <ErrorBoundary key={pathname}>
-            <Outlet />
-          </ErrorBoundary>
-        )}
+      <main className="screen" ref={screenRef}>
+        <div className="page">
+          {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+          {loading ? (
+            <div className="stack">
+              <div className="skeleton" style={{ height: 160 }} />
+              <div className="skeleton" style={{ height: 90 }} />
+              <div className="skeleton" style={{ height: 90 }} />
+            </div>
+          ) : (
+            <ErrorBoundary key={pathname}>
+              <Outlet />
+            </ErrorBoundary>
+          )}
+        </div>
       </main>
 
       {!locked && (
