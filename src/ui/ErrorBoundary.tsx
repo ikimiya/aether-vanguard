@@ -27,12 +27,12 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div style={{ background: "var(--panel)", borderRadius: 12, padding: "1.25rem" }}>
-        <h2 style={{ marginTop: 0 }}>Something went wrong on this screen</h2>
-        <p style={{ color: "var(--muted)" }}>
-          Pick another tab from the menu above, or reload the app.
+      <div className="result-panel stack">
+        <h2 style={{ margin: 0 }}>Something went wrong on this screen</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Pick another tab, or reload the app.
         </p>
-        <p style={{ color: "var(--muted)", fontSize: "0.8rem", fontFamily: "monospace" }}>
+        <p className="faint" style={{ margin: 0, fontSize: "0.8rem", fontFamily: "ui-monospace, monospace" }}>
           {this.state.error.message}
         </p>
         <button onClick={() => window.location.reload()}>Reload</button>

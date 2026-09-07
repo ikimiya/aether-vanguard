@@ -3,102 +3,113 @@ import { useAuth } from "./auth/AuthProvider";
 import { GameDataProvider, useGameData } from "./game-data/GameDataProvider";
 import { BattleLockProvider, useBattleLock } from "./battle/BattleLock";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
+import { IconEndless, IconGacha, IconRoster, IconStages, IconTeam } from "./ui/icons";
 
 const navItems = [
-  { to: "/stages", label: "Stages" },
-  { to: "/gacha", label: "Gacha" },
-  { to: "/roster", label: "Roster" },
-  { to: "/formation", label: "Team" },
-  { to: "/endless", label: "Endless" },
+  { to: "/stages", label: "Stages", Icon: IconStages },
+  { to: "/gacha", label: "Gacha", Icon: IconGacha },
+  { to: "/roster", label: "Roster", Icon: IconRoster },
+  { to: "/formation", label: "Team", Icon: IconTeam },
+  { to: "/endless", label: "Endless", Icon: IconEndless },
 ];
 
 function CurrencyBar() {
   const { currencies } = useGameData();
   if (!currencies) return null;
   return (
-    <div style={{ display: "flex", gap: "0.75rem", fontSize: "0.85rem" }}>
-      <span title="Gems">💎 {currencies.gems}</span>
-      <span title="Gold">🪙 {currencies.gold}</span>
-      <span title="XP items">📘 {currencies.xp_items}</span>
+    <div className="cluster">
+      <span className="chip" title="Gems">💎 {currencies.gems}</span>
+      <span className="chip" title="Gold">🪙 {currencies.gold}</span>
+      <span className="chip" title="XP items">📘 {currencies.xp_items}</span>
     </div>
   );
 }
 
-function Header() {
+function AppBar() {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const locked = useBattleLock();
   const username = (session?.user.user_metadata?.username as string | undefined) ?? "Commander";
 
   return (
-    <header style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-        {locked ? (
-          <span style={{ fontWeight: 700, fontSize: "1.1rem", color: "var(--text)" }}>Aether Vanguard</span>
-        ) : (
-          <Link to="/" style={{ fontWeight: 700, fontSize: "1.1rem", color: "var(--text)", textDecoration: "none" }}>
-            Aether Vanguard
-          </Link>
-        )}
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          <CurrencyBar />
-          {locked ? (
-            <span style={{ color: "var(--accent-2)", fontSize: "0.85rem", fontWeight: 600 }}>⚔ In battle</span>
-          ) : (
-            <>
-              <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{username}</span>
-              <button
-                onClick={async () => {
-                  await signOut();
-                  navigate("/login", { replace: true });
-                }}
-                style={{ background: "var(--panel-2)", padding: "0.4rem 0.7rem" }}
-              >
-                Sign out
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-      {!locked && (
-        <nav style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {navItems.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              style={({ isActive }) => ({
-                padding: "0.35rem 0.8rem",
-                borderRadius: 999,
-                textDecoration: "none",
-                color: isActive ? "var(--text)" : "var(--muted)",
-                background: isActive ? "var(--accent)" : "var(--panel-2)",
-              })}
-            >
-              {n.label}
-            </NavLink>
-          ))}
-        </nav>
+    <header className="appbar">
+      {locked ? (
+        <span className="brand">Aether Vanguard</span>
+      ) : (
+        <Link to="/" className="brand">Aether Vanguard</Link>
       )}
+      <div className="appbar__right">
+        <CurrencyBar />
+        {locked ? (
+          <span className="chip chip--accent">⚔ In battle</span>
+        ) : (
+          <button
+            className="btn--ghost btn--sm"
+            onClick={async () => {
+              await signOut();
+              navigate("/login", { replace: true });
+            }}
+            title={username}
+          >
+            Sign out
+          </button>
+        )}
+      </div>
     </header>
   );
 }
 
 function LayoutInner() {
   const { loading, error } = useGameData();
+  const locked = useBattleLock();
   const { pathname } = useLocation();
+
   return (
-    <div style={{ maxWidth: 960, margin: "0 auto", padding: "1rem" }}>
-      <Header />
-      {error && <p style={{ color: "#ff8080" }}>{error}</p>}
-      <main>
+    <div className="app">
+      <AppBar />
+      {!locked && (
+        <nav className="nav">
+          {navItems.map((n) => (
+            <NavLink
+              key={n.to}
+              to={n.to}
+              className={({ isActive }) => "nav-link" + (isActive ? " is-active" : "")}
+            >
+              {n.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
+
+      <main className="page">
+        {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
         {loading ? (
-          <p style={{ color: "var(--muted)" }}>Loading…</p>
+          <div className="stack">
+            <div className="skeleton" style={{ height: 160 }} />
+            <div className="skeleton" style={{ height: 90 }} />
+            <div className="skeleton" style={{ height: 90 }} />
+          </div>
         ) : (
           <ErrorBoundary key={pathname}>
             <Outlet />
           </ErrorBoundary>
         )}
       </main>
+
+      {!locked && (
+        <nav className="bottom-nav">
+          {navItems.map(({ to, label, Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => "bottom-nav__item" + (isActive ? " is-active" : "")}
+            >
+              <Icon />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }
