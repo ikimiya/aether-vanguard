@@ -4,21 +4,21 @@ import { useGameData } from "../game-data/GameDataProvider";
 import { BattleView, type BattleResult } from "../battle/BattleView";
 import type { BattleConfig } from "../game/engine";
 import { endlessWave } from "../game/endless";
-import { suggestTeam, toParty } from "../game/party";
+import { resolveTeam, toParty } from "../game/party";
 import { submitEndlessRun } from "../lib/operations";
 
 type Phase = { kind: "briefing" } | { kind: "fighting" } | { kind: "done"; cleared: number };
 
 export function Endless() {
   const navigate = useNavigate();
-  const { roster, endless, reload } = useGameData();
+  const { roster, endless, formation, reload } = useGameData();
   const [seed] = useState(() => Date.now() % 1_000_000);
   const [wave, setWave] = useState(1);
   const [phase, setPhase] = useState<Phase>({ kind: "briefing" });
 
   const party = useMemo(
-    () => (roster ? toParty(roster, suggestTeam(roster)) : []),
-    [roster],
+    () => (roster ? toParty(roster, resolveTeam(roster, formation ?? [])) : []),
+    [roster, formation],
   );
 
   if (party.length === 0) {

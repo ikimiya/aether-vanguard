@@ -4,13 +4,13 @@ import { useGameData } from "../game-data/GameDataProvider";
 import { BattleView, type BattleResult } from "../battle/BattleView";
 import type { BattleConfig } from "../game/engine";
 import { getStage } from "../game/data/stages";
-import { suggestTeam, toParty } from "../game/party";
+import { resolveTeam, toParty } from "../game/party";
 import { claimStageRewards, type StageRewardResult } from "../lib/operations";
 
 export function StageBattle() {
   const { stageId = "" } = useParams();
   const navigate = useNavigate();
-  const { roster, reload } = useGameData();
+  const { roster, formation, reload } = useGameData();
   const [summary, setSummary] = useState<StageRewardResult | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -23,8 +23,8 @@ export function StageBattle() {
   }, [stageId]);
 
   const party = useMemo(
-    () => (roster ? toParty(roster, suggestTeam(roster)) : []),
-    [roster],
+    () => (roster ? toParty(roster, resolveTeam(roster, formation ?? [])) : []),
+    [roster, formation],
   );
 
   const config = useMemo<BattleConfig>(

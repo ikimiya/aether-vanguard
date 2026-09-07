@@ -15,6 +15,24 @@ export function toParty(owned: OwnedCharacter[], orderedKeys: string[]): PartyMe
     .map((o) => ({ characterId: o.character_key, level: o.level, star: o.star }));
 }
 
+/**
+ * The player's saved formation, cleaned against the current roster: unowned,
+ * unknown, and duplicate keys dropped, capped at 5. Falls back to `suggestTeam`
+ * when nothing usable is saved.
+ */
+export function resolveTeam(owned: OwnedCharacter[], saved: string[]): string[] {
+  const ownedKeys = new Set(owned.map((o) => o.character_key));
+  const seen = new Set<string>();
+  const team: string[] = [];
+  for (const key of saved) {
+    if (seen.has(key) || !ownedKeys.has(key) || !CHARACTERS_BY_ID[key]) continue;
+    seen.add(key);
+    team.push(key);
+    if (team.length === TEAM_SIZE) break;
+  }
+  return team.length > 0 ? team : suggestTeam(owned);
+}
+
 /** A reasonable default team: highest rarity, then highest level, capped at 5. */
 export function suggestTeam(owned: OwnedCharacter[]): string[] {
   return [...owned]

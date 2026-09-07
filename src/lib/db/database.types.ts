@@ -21,9 +21,9 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; username: string; created_at: string };
-        Insert: { id: string; username: string; created_at?: string };
-        Update: { username?: string };
+        Row: { id: string; username: string; created_at: string; formation: string[] };
+        Insert: { id: string; username: string; created_at?: string; formation?: string[] };
+        Update: { username?: string; formation?: string[] };
         Relationships: NoRelationships;
       };
       currencies: {

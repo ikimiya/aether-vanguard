@@ -43,6 +43,8 @@ export function Gacha() {
                   padding: "0.4rem",
                   textAlign: "center",
                   background: "var(--panel)",
+                  animation: "cardReveal 0.35s ease both",
+                  animationDelay: `${i * 60}ms`,
                 }}
               >
                 <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6, width: "100%" }} />

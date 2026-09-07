@@ -6,6 +6,7 @@ const navItems = [
   { to: "/stages", label: "Stages" },
   { to: "/gacha", label: "Gacha" },
   { to: "/roster", label: "Roster" },
+  { to: "/formation", label: "Team" },
   { to: "/endless", label: "Endless" },
 ];
 

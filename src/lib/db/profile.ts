@@ -17,3 +17,8 @@ export async function setUsername(userId: string, username: string): Promise<voi
   const { error } = await supabase.from("profiles").update({ username }).eq("id", userId);
   if (error) throw error;
 }
+
+export async function saveFormation(userId: string, formation: string[]): Promise<void> {
+  const { error } = await supabase.from("profiles").update({ formation }).eq("id", userId);
+  if (error) throw error;
+}

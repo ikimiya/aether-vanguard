@@ -9,6 +9,7 @@ import { StageSelect } from "./screens/StageSelect";
 import { Roster } from "./screens/Roster";
 import { CharacterDetail } from "./screens/CharacterDetail";
 import { Gacha } from "./screens/Gacha";
+import { Formation } from "./screens/Formation";
 
 // Phaser is ~1.4 MB, so battle routes are split out of the main bundle and
 // only fetched when the player enters a fight.
@@ -41,6 +42,7 @@ export const router = createHashRouter([
       { path: "gacha", element: <Gacha /> },
       { path: "roster", element: <Roster /> },
       { path: "roster/:characterKey", element: <CharacterDetail /> },
+      { path: "formation", element: <Formation /> },
       { path: "endless", element: lazyScreen(() => import("./screens/Endless"), "Endless") },
       { path: "*", element: <Navigate to="/" replace /> },
     ],

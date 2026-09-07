@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useUserId } from "../auth/useSession";
-import { currencyRepo, endlessRepo, gachaRepo, progressRepo, rosterRepo } from "../lib/db";
+import { currencyRepo, endlessRepo, gachaRepo, profileRepo, progressRepo, rosterRepo } from "../lib/db";
 import type { Currencies } from "../lib/db/currency";
 import type { OwnedCharacter } from "../lib/db/roster";
 import type { StageProgress } from "../lib/db/progress";
@@ -13,6 +13,7 @@ interface GameData {
   progress: StageProgress[];
   gachaState: GachaState;
   endless: EndlessRun;
+  formation: string[];
 }
 
 interface GameDataContext extends Partial<GameData> {
@@ -33,14 +34,15 @@ export function GameDataProvider({ children }: { children: React.ReactNode }) {
     if (!userId) return;
     setError(null);
     try {
-      const [currencies, roster, progress, gachaState, endless] = await Promise.all([
+      const [currencies, roster, progress, gachaState, endless, profile] = await Promise.all([
         currencyRepo.get(userId),
         rosterRepo.list(userId),
         progressRepo.list(userId),
         gachaRepo.get(userId),
         endlessRepo.get(userId),
+        profileRepo.get(userId),
       ]);
-      setData({ currencies, roster, progress, gachaState, endless });
+      setData({ currencies, roster, progress, gachaState, endless, formation: profile?.formation ?? [] });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load your data");
     }

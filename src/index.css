@@ -20,6 +20,13 @@ img {
   display: block;
 }
 
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(6px);
+  }
+}
+
 html,
 body,
 #root {

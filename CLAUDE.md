@@ -37,6 +37,7 @@ written to be importable from Node.
 2. Create a Supabase project. In the SQL editor run, in order:
    `supabase/migrations/0001_init.sql`, then
    `supabase/migrations/0002_server_authoritative.sql`, then
+   `supabase/migrations/0003_formation.sql`, then
    `supabase/generated/config_seed.sql`.
 3. `cp .env.example .env` and fill `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
    from Supabase project settings → API.
@@ -110,7 +111,12 @@ The `public` DB tables store only per-user mutable state: `profiles`,
 `currencies`, `owned_characters` (keyed by `character_key`, must resolve against
 `src/game/data/characters/`), `stage_progress`, `endless_runs`, `gacha_state`.
 RLS locks every row to `auth.uid()`; the economy tables now expose SELECT only,
-with all writes going through the RPCs.
+with all writes going through the RPCs. `profiles` is not an economy table:
+`profiles.formation` (a `jsonb` array of up to 5 `character_key`s, migration
+`0003`) is written directly by the client via `profileRepo.saveFormation` under
+the existing "update own" policy. `src/game/party.ts` `resolveTeam()` cleans it
+against the roster and falls back to `suggestTeam()`; `StageBattle`/`Endless`
+build their party from it.
 
 **Residual trust gap:** a battle's outcome (won / rounds / no-deaths) is asserted
 by the client — verifying it would need a server-side replay engine.
@@ -157,9 +163,10 @@ per-repo configuration.
 - Battle randomness always goes through the seeded RNG in
   `src/game/engine/rng.ts` — never `Math.random()` in engine code — so battles
   are reproducible in tests.
-- Screens read the backend through `src/lib/db/` repositories and write it only
-  through `src/lib/operations.ts` RPC wrappers; after a mutation, call
-  `useGameData().reload()`.
+- Screens read the backend through `src/lib/db/` repositories and write the
+  economy only through `src/lib/operations.ts` RPC wrappers; after a mutation,
+  call `useGameData().reload()`. The only non-economy client writes are the
+  `profiles` repo helpers (`setUsername`, `saveFormation`).
 - The economy is server-authoritative (see Data ownership). Don't add client-side
   currency/roster writes — they'll be rejected by RLS. Add an RPC instead.
 - Endless battles currently start each wave at full HP/MP (no carry-over).
