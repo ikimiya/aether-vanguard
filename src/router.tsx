@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createHashRouter } from "react-router-dom";
+import { createHashRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "./AppLayout";
 import { RequireAuth } from "./auth/RequireAuth";
 import { Home } from "./screens/Home";
@@ -42,6 +42,7 @@ export const router = createHashRouter([
       { path: "roster", element: <Roster /> },
       { path: "roster/:characterKey", element: <CharacterDetail /> },
       { path: "endless", element: lazyScreen(() => import("./screens/Endless"), "Endless") },
+      { path: "*", element: <Navigate to="/" replace /> },
     ],
   },
 ]);

@@ -59,14 +59,29 @@ Four layers, deliberately decoupled:
 
 Supporting:
 
-- **`src/lib/supabase.ts`** — the Supabase client singleton.
+- **`src/lib/supabase.ts`** — the Supabase client singleton (has a "not
+  configured" fallback so the app still renders before `.env` is set).
 - **`src/lib/db/`** — the *only* place that reads/writes Supabase tables. One
-  repository module per table (`roster.ts`, `currency.ts`, `progress.ts`, …).
-  Screens call repositories, never `supabase.from(...)` directly.
-- **`src/game/progression.ts`** — level/star → stats, level-up and star-up costs,
-  rarity level caps. Pure.
-- **`src/game/gacha.ts`** — pull logic: pool building, pity, rate rolls, dupe →
-  shard conversion. Pure; the DB writes happen in `src/lib/db/gacha.ts`.
+  repository module per table (`roster.ts`, `currency.ts`, `progress.ts`,
+  `gacha.ts`, `endless.ts`, `profile.ts`). Screens never call `supabase.from(...)`.
+- **`src/lib/operations.ts`** — cross-table flows that combine repos with pure
+  game logic: `pullBanner`, `claimStageRewards`, `levelUpCharacter`,
+  `starUpCharacter`, `submitEndlessRun`. Screens call these for mutations.
+- **`src/game-data/GameDataProvider.tsx`** — loads currencies/roster/progress/
+  gacha_state/endless once per session; `useGameData()` exposes them plus
+  `reload()`. Screens read from it and call `reload()` after an operation.
+- **`src/game/progression.ts`** — level/star → stats, costs, rarity caps. Pure.
+- **`src/game/gacha.ts`** — pull rolls: pity, featured 50/50, dupe→shard. Pure.
+- **`src/game/endless.ts`** — deterministic scaled wave generator. Pure.
+- **`src/battle/BattleView.tsx`** — React shell that owns a `BattleState`,
+  renders `<PhaserBattle>` plus the action/target/swap/result UI.
+
+### Routes
+
+HashRouter. `/login`, `/signup`, and `/sandbox` (a dev-only fixed-team battle
+tester) are outside the auth guard. Everything else is under `RequireAuth` +
+`AppLayout` (+ `GameDataProvider`): `/`, `/stages`, `/stages/:stageId`,
+`/gacha`, `/roster`, `/roster/:characterKey`, `/endless`.
 
 ### Data ownership
 
@@ -105,4 +120,9 @@ per-repo configuration.
 - Battle randomness always goes through the seeded RNG in
   `src/game/engine/rng.ts` — never `Math.random()` in engine code — so battles
   are reproducible in tests.
-- Screens talk to the backend only through `src/lib/db/` repositories.
+- Screens talk to the backend only through `src/lib/db/` repositories or
+  `src/lib/operations.ts`; after a mutation, call `useGameData().reload()`.
+- Currency writes are read-modify-write (single-player hobby game); `currencyRepo`
+  guards against overspend. A server-side atomic pull is a known future hardening
+  step, not built.
+- Endless battles currently start each wave at full HP/MP (no carry-over).
