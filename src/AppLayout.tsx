@@ -1,7 +1,8 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { GameDataProvider, useGameData } from "./game-data/GameDataProvider";
 import { BattleLockProvider, useBattleLock } from "./battle/BattleLock";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 
 const navItems = [
   { to: "/stages", label: "Stages" },
@@ -84,11 +85,20 @@ function Header() {
 
 function LayoutInner() {
   const { loading, error } = useGameData();
+  const { pathname } = useLocation();
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "1rem" }}>
       <Header />
       {error && <p style={{ color: "#ff8080" }}>{error}</p>}
-      <main>{loading ? <p style={{ color: "var(--muted)" }}>Loading…</p> : <Outlet />}</main>
+      <main>
+        {loading ? (
+          <p style={{ color: "var(--muted)" }}>Loading…</p>
+        ) : (
+          <ErrorBoundary key={pathname}>
+            <Outlet />
+          </ErrorBoundary>
+        )}
+      </main>
     </div>
   );
 }

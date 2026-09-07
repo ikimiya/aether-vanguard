@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { CHARACTERS, getCharacter } from "./characters";
+import { CHARACTERS, getCharacter, tryGetCharacter } from "./characters";
 import { ENEMIES } from "./enemies";
 import { SKILLS } from "./skills";
 import { STAGES, ENDLESS } from "./stages";
@@ -30,6 +30,11 @@ describe("characters", () => {
     for (const c of CHARACTERS) {
       expect(RARITIES[c.rarity], c.id).toBeDefined();
     }
+  });
+
+  it("tryGetCharacter resolves known ids and returns undefined for others", () => {
+    expect(tryGetCharacter(CHARACTERS[0].id)).toBe(CHARACTERS[0]);
+    expect(tryGetCharacter("not-a-real-character")).toBeUndefined();
   });
 
   it("have art files on disk", () => {

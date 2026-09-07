@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useGameData } from "../game-data/GameDataProvider";
 import { useRequiredUserId } from "../auth/useSession";
-import { getCharacter } from "../game/data/characters";
+import { getCharacter, tryGetCharacter } from "../game/data/characters";
 import { RARITIES } from "../game/data/gacha/rarities";
 import { ELEMENT_COLORS } from "../game/data/elements";
 import { ACTIVE_SLOTS, TEAM_SIZE, resolveTeam } from "../game/party";
@@ -11,7 +11,10 @@ import { assetUrl } from "../ui/assets";
 export function Formation() {
   const userId = useRequiredUserId();
   const { roster, formation, reload } = useGameData();
-  const owned = roster ?? [];
+  const owned = useMemo(
+    () => (roster ?? []).filter((o) => tryGetCharacter(o.character_key)),
+    [roster],
+  );
   const saved = useMemo(() => formation ?? [], [formation]);
 
   const [draft, setDraft] = useState<string[]>(() => resolveTeam(owned, saved));

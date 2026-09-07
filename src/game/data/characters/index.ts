@@ -33,6 +33,11 @@ export function getCharacter(id: string): Character {
   return c;
 }
 
+/** Non-throwing lookup for UI that may hold a stale/removed character_key. */
+export function tryGetCharacter(id: string): Character | undefined {
+  return CHARACTERS_BY_ID[id];
+}
+
 export function charactersOfRarity(rarity: number): Character[] {
   return CHARACTERS.filter((c) => c.rarity === rarity);
 }

@@ -1,23 +1,32 @@
 import { Link } from "react-router-dom";
 import { useGameData } from "../game-data/GameDataProvider";
-import { getCharacter } from "../game/data/characters";
+import { getCharacter, tryGetCharacter } from "../game/data/characters";
 import { RARITIES } from "../game/data/gacha/rarities";
 import { ELEMENT_COLORS } from "../game/data/elements";
 import { assetUrl } from "../ui/assets";
 
 export function Roster() {
   const { roster } = useGameData();
-  const owned = [...(roster ?? [])].sort((a, b) => {
-    const ra = getCharacter(a.character_key).rarity;
-    const rb = getCharacter(b.character_key).rarity;
-    return rb - ra || b.level - a.level;
-  });
+  const all = roster ?? [];
+  const owned = all
+    .filter((o) => tryGetCharacter(o.character_key))
+    .sort((a, b) => {
+      const ra = getCharacter(a.character_key).rarity;
+      const rb = getCharacter(b.character_key).rarity;
+      return rb - ra || b.level - a.level;
+    });
+  const hidden = all.length - owned.length;
 
   if (owned.length === 0) return <p>No units yet — try the Gacha.</p>;
 
   return (
     <div>
       <h2 style={{ marginTop: 0 }}>Roster ({owned.length})</h2>
+      {hidden > 0 && (
+        <p style={{ color: "var(--muted)", fontSize: "0.8rem" }}>
+          {hidden} unit{hidden === 1 ? "" : "s"} hidden — unrecognized character data.
+        </p>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.6rem" }}>
         {owned.map((o) => {
           const c = getCharacter(o.character_key);
