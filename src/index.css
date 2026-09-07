@@ -399,35 +399,51 @@ button.card:hover:not(:disabled) {
   grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 132px), 1fr));
 }
 
-/* ------------------------------------------------------- home main menu --- */
+/* ---------------------------------------------- home menu (wallpaper) --- */
 
 .menu {
   position: relative;
-  width: min(100% - 2 * var(--s-4), 560px);
-  margin: 0 auto;
-  padding: var(--s-6) 0 var(--s-8);
+  height: 100%;
+  overflow: hidden;
   display: grid;
-  gap: var(--s-2);
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
-    "hud    hud"
-    "char   char"
-    "play   play"
-    "team   gacha"
-    "roster endless";
-  align-content: start;
+    "hud   .   play"
+    ".     .   ."
+    "left  .   right";
+  gap: var(--s-3);
+  padding: max(var(--s-4), env(safe-area-inset-top)) max(var(--s-4), env(safe-area-inset-right))
+    max(var(--s-4), env(safe-area-inset-bottom)) max(var(--s-4), env(safe-area-inset-left));
 }
 
-@media (min-width: 700px) {
-  .menu {
-    width: min(100% - 2 * var(--s-4), 760px);
-    gap: var(--s-3);
-    grid-template-columns: 150px minmax(0, 1fr) 150px;
-    grid-template-areas:
-      "hud    .      play"
-      "roster char   endless"
-      "team   char   gacha";
-  }
+.menu__wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+}
+.menu::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.6),
+    transparent 22%,
+    transparent 58%,
+    rgba(0, 0, 0, 0.7)
+  );
+}
+
+.menu > *:not(.menu__wallpaper) {
+  position: relative;
+  z-index: 2;
 }
 
 .menu__hud {
@@ -438,101 +454,71 @@ button.card:hover:not(:disabled) {
   gap: var(--s-2);
 }
 .menu__name {
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
 
-.menu__char {
-  grid-area: char;
-  position: relative;
+.menu__group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  padding: var(--s-3) 0;
+  flex-direction: column;
+  gap: var(--s-2);
 }
-.menu__char::before {
-  content: "";
-  position: absolute;
-  inset: 12% 20%;
-  background: radial-gradient(circle, var(--rarity, var(--accent)), transparent 68%);
-  opacity: 0.18;
-  filter: blur(22px);
+.menu__group--left {
+  grid-area: left;
+  align-items: flex-start;
 }
-.menu__char img {
-  position: relative;
-  max-height: min(28vh, 240px);
-  width: auto;
-  border-radius: var(--r-md);
-  border: 1px solid var(--line);
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.5));
+.menu__group--right {
+  grid-area: right;
+  align-items: flex-end;
 }
 
 .menu-btn {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 1px;
-  min-height: 46px;
-  padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-md);
+  min-height: 34px;
+  padding: 0.32rem 0.9rem;
+  border-radius: var(--r-pill);
   background: var(--surface-1);
-  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-1) 82%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line-strong);
   color: var(--text);
   font-weight: 700;
   font-size: var(--fs-sm);
   transition:
     transform var(--dur) var(--ease),
-    border-color var(--dur) var(--ease),
-    box-shadow var(--dur) var(--ease);
+    box-shadow var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
 }
 .menu-btn:hover {
   text-decoration: none;
   transform: translateY(-1px);
-  border-color: var(--line-strong);
+  filter: brightness(1.12);
   box-shadow: var(--shadow-1);
-}
-.menu-btn small {
-  font-weight: 600;
-  font-size: 0.68rem;
-  color: var(--text-dim);
 }
 
 .menu-btn--play {
   grid-area: play;
-  min-height: 62px;
-  padding: var(--s-3) var(--s-4);
+  min-height: 40px;
+  padding: 0.4rem 1.4rem;
   background: var(--accent-gradient);
   border: none;
   color: #fff;
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: 800;
 }
 .menu-btn--play:hover {
   box-shadow: var(--glow);
-  filter: brightness(1.06);
 }
-.menu-btn--play small {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: var(--fs-xs);
-}
-.menu-btn--team {
-  grid-area: team;
-}
-.menu-btn--gacha {
-  grid-area: gacha;
-}
-.menu-btn--roster,
-.menu-btn--endless {
-  min-height: 42px;
-  background: var(--surface-2);
-}
-.menu-btn--roster {
-  grid-area: roster;
-}
-.menu-btn--endless {
-  grid-area: endless;
+
+.menu__center {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+  justify-self: center;
 }
 
 .list {
