@@ -403,11 +403,11 @@ button.card:hover:not(:disabled) {
 
 .menu {
   position: relative;
-  min-height: 100%;
+  width: min(100% - 2 * var(--s-4), 560px);
+  margin: 0 auto;
+  padding: var(--s-6) 0 var(--s-8);
   display: grid;
-  gap: var(--s-3);
-  padding: max(var(--s-4), env(safe-area-inset-top)) max(var(--s-5), env(safe-area-inset-right))
-    calc(var(--s-5) + env(safe-area-inset-bottom, 0px)) max(var(--s-5), env(safe-area-inset-left));
+  gap: var(--s-2);
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "hud    hud"
@@ -418,16 +418,15 @@ button.card:hover:not(:disabled) {
   align-content: start;
 }
 
-@media (min-width: 720px) {
+@media (min-width: 700px) {
   .menu {
-    grid-template-columns: minmax(150px, 1fr) minmax(0, 2fr) minmax(150px, 1fr);
-    grid-template-rows: auto 1fr 1fr;
+    width: min(100% - 2 * var(--s-4), 760px);
+    gap: var(--s-3);
+    grid-template-columns: 150px minmax(0, 1fr) 150px;
     grid-template-areas:
       "hud    .      play"
       "roster char   endless"
       "team   char   gacha";
-    align-content: stretch;
-    gap: var(--s-4);
   }
 }
 
@@ -439,7 +438,7 @@ button.card:hover:not(:disabled) {
   gap: var(--s-2);
 }
 .menu__name {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -451,38 +450,38 @@ button.card:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   min-height: 0;
-  padding: var(--s-3);
+  padding: var(--s-3) 0;
 }
 .menu__char::before {
   content: "";
   position: absolute;
-  inset: 12% 16%;
+  inset: 12% 20%;
   background: radial-gradient(circle, var(--rarity, var(--accent)), transparent 68%);
-  opacity: 0.2;
-  filter: blur(24px);
+  opacity: 0.18;
+  filter: blur(22px);
 }
 .menu__char img {
   position: relative;
-  max-height: min(46vh, 440px);
+  max-height: min(28vh, 240px);
   width: auto;
-  border-radius: var(--r-lg);
+  border-radius: var(--r-md);
   border: 1px solid var(--line);
-  filter: drop-shadow(0 22px 44px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.5));
 }
 
 .menu-btn {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
-  min-height: 64px;
-  padding: var(--s-3) var(--s-4);
+  gap: 1px;
+  min-height: 46px;
+  padding: var(--s-2) var(--s-3);
   border-radius: var(--r-md);
   background: var(--surface-1);
   border: 1px solid var(--line);
   color: var(--text);
   font-weight: 700;
-  font-size: var(--fs-lg);
+  font-size: var(--fs-sm);
   transition:
     transform var(--dur) var(--ease),
     border-color var(--dur) var(--ease),
@@ -490,24 +489,24 @@ button.card:hover:not(:disabled) {
 }
 .menu-btn:hover {
   text-decoration: none;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--line-strong);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-1);
 }
 .menu-btn small {
   font-weight: 600;
-  font-size: var(--fs-xs);
+  font-size: 0.68rem;
   color: var(--text-dim);
 }
 
 .menu-btn--play {
   grid-area: play;
-  min-height: 104px;
-  padding: var(--s-4) var(--s-5);
+  min-height: 62px;
+  padding: var(--s-3) var(--s-4);
   background: var(--accent-gradient);
   border: none;
   color: #fff;
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-lg);
   font-weight: 800;
 }
 .menu-btn--play:hover {
@@ -516,7 +515,7 @@ button.card:hover:not(:disabled) {
 }
 .menu-btn--play small {
   color: rgba(255, 255, 255, 0.82);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
 }
 .menu-btn--team {
   grid-area: team;
@@ -526,8 +525,7 @@ button.card:hover:not(:disabled) {
 }
 .menu-btn--roster,
 .menu-btn--endless {
-  min-height: 52px;
-  font-size: var(--fs-md);
+  min-height: 42px;
   background: var(--surface-2);
 }
 .menu-btn--roster {
