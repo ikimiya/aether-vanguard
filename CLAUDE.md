@@ -144,18 +144,53 @@ update both `src/game/gacha.ts`/`progression.ts` **and** the matching plpgsql in
 
 ### Adding a character
 
-1. Drop art at `public/assets/characters/<id>/portrait.png` (512×512) and
-   `battle.png` (420×560). Optionally `splash.png` (wide) and reference it as
-   `art.splash` — see "Menu wallpaper".
-2. Add `src/game/data/characters/<id>.ts` (copy `kai.ts`).
-3. Add one line to `src/game/data/characters/index.ts`.
-4. `npm run gen:sql` and re-run `supabase/generated/config_seed.sql` so the
-   server knows the new character's rarity for gacha.
+The character's `id` string is the join key everywhere — `CHARACTERS_BY_ID`, the
+gacha pool, banner `featured` lists, and the DB `owned_characters.character_key`.
 
-Rarity is a field on the character object (`rarity: 3 | 4 | 5`), not a folder.
-The gacha filters the pool by that field. Every art path referenced by a
-character (`portrait`, `battle`, and `splash` if set) must exist on disk or
-`src/game/data/data-integrity.test.ts` fails.
+1. Data file `src/game/data/characters/<id>.ts` — copy `kai.ts`; set `id`,
+   `name`, `rarity` (`3 | 4 | 5`), `element`, `role`, `baseStats`/`growth`,
+   `maxMp`/`mpRegen`, `skills` (ids from `src/game/data/skills/index.ts`), and the
+   `art` paths.
+2. Register it: `import` + one array line in
+   `src/game/data/characters/index.ts`.
+3. Art at `public/assets/characters/<id>/portrait.png` (512×512) and `battle.png`
+   (420×560); optional `splash.png` (wide) referenced as `art.splash` — see
+   "Menu wallpaper". No real art yet? add `["<id>", "<element>", <rarity>]` to
+   the `characters` array in `scripts/gen-placeholders.mjs`, then `npm run
+   gen:art`.
+4. Optional: add the id to a banner's `featured` in
+   `src/game/data/gacha/banners/index.ts`.
+5. `npm run gen:sql` and re-run `supabase/generated/config_seed.sql` in the
+   Supabase SQL editor (gacha needs the rarity server-side).
+6. `npm test` — `data-integrity.test.ts` checks the art files + skill ids,
+   `sql-seed.test.ts` checks the seed is fresh.
+
+Rarity is a field on the character object, not a folder; the gacha filters the
+pool by it. Every art path a character references (`portrait`, `battle`, and
+`splash` if set) must exist on disk or `data-integrity.test.ts` fails. `art.*`
+can point anywhere, but folder == id by convention.
+
+### Renaming a character id
+
+The id is the DB `character_key`, so a rename is a data migration — an existing
+`owned_characters` row keyed by the old id resolves to nothing and the unit
+silently disappears from the roster (`tryGetCharacter` / the Roster guard hide
+it).
+
+1. Rename the data file, its `export const`, the `id:` field, and the `art`
+   folder paths; rename `public/assets/characters/<old>/` → `<new>/`.
+2. Update `characters/index.ts`, the `characters` list in
+   `scripts/gen-placeholders.mjs`, any `gacha/banners/index.ts`
+   `featured`/`poolCharacters` entry, and the hardcoded ids in the test fixtures
+   (`src/game/{gacha,party}.test.ts`, `src/game/engine/battle.test.ts`) and
+   `src/screens/BattleSandbox.tsx`.
+3. `npm run gen:sql` → re-run `config_seed.sql` in the SQL editor.
+4. Fix existing saves in the SQL editor:
+   `update public.owned_characters set character_key = '<new>' where character_key = '<old>';`
+   If you're renaming the starter (`kai`), also `create or replace function
+   app.starter_character() ... select '<new>'`. Or wipe with
+   `supabase/dev_reset.sql`.
+5. `npm test`, commit, push.
 
 ### Menu wallpaper
 
