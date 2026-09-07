@@ -25,6 +25,7 @@ sections below.
 | Watch tests | `npm run test:watch` |
 | Type-check only | `npm run typecheck` |
 | Regenerate placeholder art | `npm run gen:art` |
+| Scaffold a character / banner | `npm run scaffold -- character …` / `npm run scaffold -- banner …` |
 | Validate the static data | `npm run validate` (schema / refs / assets; `gen:sql` runs it first) |
 | Regenerate the DB config seed | `npm run gen:sql` (after any `src/game/data/` change) |
 
@@ -163,42 +164,46 @@ Edit a number in `src/game/data/` (or the cost constants in `progression.ts`) �
 The character's `id` string is the join key everywhere — `CHARACTERS_BY_ID`, the
 gacha pool, banner `featured` lists, and the DB `owned_characters.character_key`.
 
-1. Data file `src/game/data/characters/<id>.ts` — copy `kai.ts`; set `id`,
-   `name`, `rarity` (`3 | 4 | 5`), `element`, `role`, `baseStats`/`growth`,
-   `maxMp`/`mpRegen`, `skills` (ids from `src/game/data/skills/index.ts`), the
-   `art` paths, and optionally `starUp` (per-star shard override; omitted stars
-   fall back to `STAR_UP_SHARDS`).
-2. Register it: `import` + one array line in `src/game/data/characters/index.ts`.
-3. Art at `public/assets/characters/<id>/portrait.png` (512×512) and `battle.png`
-   (420×560); optional `splash.png` (wide) as `art.splash` — see "Menu
-   wallpaper". No real art yet? add `["<id>", "<element>", <rarity>]` to the
-   `characters` array in `scripts/gen-placeholders.mjs`, then `npm run gen:art`.
-4. Optional: rate it up on a banner (see "Adding / scheduling a banner").
-5. `npm run validate` → `npm run gen:sql` → re-run `config_seed.sql` in the
-   Supabase SQL editor.
-6. `npm test`, commit, push.
+**Fast path** — `npm run scaffold -- character <id> <Name> <3|4|5> <element> <dps|support|tank> [magic|physical]`
+writes `src/game/data/characters/<id>.ts` (balanced stats for the tier + an
+element-appropriate skill kit — starting points, tune freely) and registers it in
+`characters/index.ts`. Then drop art, `npm run validate && npm run gen:sql`, and
+re-run `config_seed.sql` in Supabase.
 
-Rarity is a field on the character object, not a folder; the gacha filters the
-pool by it. `validate` / `gen:sql` fail if any referenced art file is missing or
-a skill ref is unknown. `art.*` can point anywhere, but folder == id by
-convention.
+Manual, if you'd rather:
+1. `src/game/data/characters/<id>.ts` — copy `kai.ts`; set `id`, `name`,
+   `rarity`, `element`, `role`, `baseStats`/`growth`, `maxMp`/`mpRegen`, `skills`
+   (ids from `src/game/data/skills/index.ts`), `art` paths, optional `starUp`.
+2. Register: `import` + one array line in `src/game/data/characters/index.ts`.
+3. `npm run validate` → `npm run gen:sql` → re-run `config_seed.sql` in Supabase.
+4. `npm test`, commit, push.
+
+Art goes at `public/assets/characters/<id>/portrait.png` (512×512) + `battle.png`
+(420×560), optional `splash.png` (wide, see "Menu wallpaper"). No real art yet?
+add `["<id>", "<element>", <rarity>]` to the `characters` array in
+`scripts/gen-placeholders.mjs` and `npm run gen:art`. **If a unit has real art,
+keep it OUT of that list** — `gen:art` would overwrite it with a placeholder.
+
+`validate` / `gen:sql` fail if any referenced art file is missing or a skill ref
+is unknown. `art.*` can point anywhere, but folder == id by convention.
 
 ### Adding / scheduling a banner
 
 One file per banner. A banner names character **IDs** + rate-up + window — it
 never touches a character definition.
 
-1. `src/game/data/gacha/banners/<id>.ts` — export a `Banner`: `id`, `name`,
-   `costPerPull`, `featured: { 5: ["<charId>"], 4: [...] }`, optional
-   `featuredRate: { 5: 0.55 }` (featured-vs-off split; default 0.5 / 0.5),
-   optional `poolCharacters` (restrict the non-featured pool), optional
-   `startsAt` / `endsAt` (ISO — the server rejects out-of-window pulls), `art`.
-2. `import` + one array line in `src/game/data/gacha/banners/index.ts`.
-3. Banner art `public/assets/banners/<id>.png` (or add to
-   `scripts/gen-placeholders.mjs` + `npm run gen:art`).
-4. `npm run validate` → `npm run gen:sql` → re-run `config_seed.sql` in Supabase.
-5. `npm test`, commit, push. It goes live at `startsAt` and closes at `endsAt`
-   with no redeploy.
+**Fast path** — `npm run scaffold -- banner <id> "<Name>" <featuredCharId> [durationDays]`
+writes `src/game/data/gacha/banners/<id>.ts` (featured on that unit's rarity,
+`startsAt` now / `endsAt` now + days, default 21) and registers it. Then add
+banner art, `npm run validate && npm run gen:sql`, re-run `config_seed.sql`.
+
+The `Banner` object also takes `featured: { 4: [...] }` (multiple slots),
+`featuredRate: { 5: 0.55 }` (featured-vs-off split; default 0.5 / 0.5), and
+`poolCharacters` (restrict the non-featured pool). Banner art at
+`public/assets/banners/<id>.png` — or add `["<id>", "<hex>"]` to
+`scripts/gen-placeholders.mjs` and `npm run gen:art` for a placeholder. It opens
+at `startsAt` and closes at `endsAt` with no redeploy; the server (`pull_banner`)
+rejects out-of-window pulls.
 
 ### Renaming a character id
 

@@ -9,6 +9,7 @@ import { hana } from "./hana";
 import { garrett } from "./garrett";
 import { seraphine } from "./seraphine";
 import { nyx } from "./nyx";
+import { emilia } from "./emilia";
 
 export const CHARACTERS: Character[] = [
   kai,
@@ -21,6 +22,7 @@ export const CHARACTERS: Character[] = [
   garrett,
   seraphine,
   nyx,
+  emilia,
 ];
 
 export const CHARACTERS_BY_ID: Record<string, Character> = Object.fromEntries(

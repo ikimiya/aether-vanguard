@@ -12,7 +12,8 @@
     "typecheck": "tsc -b && tsc -p tsconfig.test.json",
     "gen:art": "node scripts/gen-placeholders.mjs",
     "gen:sql": "tsx scripts/gen-sql-config.ts",
-    "validate": "tsx scripts/validate.ts"
+    "validate": "tsx scripts/validate.ts",
+    "scaffold": "tsx scripts/scaffold.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

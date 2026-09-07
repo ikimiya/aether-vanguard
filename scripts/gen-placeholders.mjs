@@ -55,6 +55,7 @@ const enemies = [
 const banners = [
   ["standard", NEUTRAL],
   ["rate-up-seraphine", ELEMENT_COLORS.light],
+  ["rate-up-emilia", ELEMENT_COLORS.ice],
 ];
 
 function hexToRgb(hex) {

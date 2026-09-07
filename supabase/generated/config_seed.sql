@@ -15,7 +15,8 @@ insert into app.characters (character_key, rarity) values
   ('hana', 4),
   ('garrett', 4),
   ('seraphine', 5),
-  ('nyx', 5);
+  ('nyx', 5),
+  ('emilia', 5);
 
 insert into app.rarity_config (rarity, base_rate, level_cap, dupe_shards) values
   (3, 0.789, 40, 5),
@@ -23,6 +24,7 @@ insert into app.rarity_config (rarity, base_rate, level_cap, dupe_shards) values
   (5, 0.021, 80, 50);
 
 insert into app.banners (banner_id, cost_per_pull, featured, featured_rate, pool_characters, starts_at, ends_at) values
+  ('rate-up-emilia', 160, '{"5":["emilia"]}'::jsonb, '{"4":0.5,"5":0.5}'::jsonb, null, '2026-09-07T22:43:23.022Z', '2026-09-28T22:43:23.022Z'),
   ('rate-up-seraphine', 160, '{"4":["ayaka","hana","sora"],"5":["seraphine"]}'::jsonb, '{"4":0.5,"5":0.5}'::jsonb, null, null, null),
   ('standard', 150, '{}'::jsonb, '{"4":0.5,"5":0.5}'::jsonb, null, null, null);
 
