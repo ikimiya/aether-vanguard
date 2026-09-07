@@ -31,6 +31,14 @@ Then, in Auth settings, add your dev/Pages origins to the redirect URLs (and tur
 off "Confirm email" if you want one-step signup). See [`CLAUDE.md`](./CLAUDE.md)
 for architecture and the balance-change workflow.
 
+### Resetting a test account
+
+The economy tables are RLS-locked to reads for the client, so gems and progress
+can only be changed from the Supabase side. Paste `supabase/dev_reset.sql` into
+the SQL editor — it has blocks to top up currencies, reset progress in place, or
+fully wipe an account (delete the auth user, then sign up again to re-trigger the
+starter grants). Edit the `v_email` line in the block you want before running it.
+
 ## Scripts
 
 - `npm run dev` — dev server
