@@ -11,6 +11,8 @@ export const toa: Character = {
   maxMp: 90,
   mpRegen: 11,
   skills: ["aegis-hymn"],
+  artPrompt:
+    "broad-shouldered man with a cropped grey beard, heavy stone-plated pauldrons, a huge slab shield on his back, arms crossed, drifting dust and gravel, earthy browns",
   art: { portrait: "assets/characters/toa/portrait.png", battle: "assets/characters/toa/battle.png" },
   lore: "A quarry foreman turned shield-bearer. Immovable, and proud of it.",
 };

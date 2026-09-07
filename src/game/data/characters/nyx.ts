@@ -11,6 +11,8 @@ export const nyx: Character = {
   maxMp: 130,
   mpRegen: 15,
   skills: ["abyssal-rend", "hex", "chain-lightning"],
+  artPrompt:
+    "sleek assassin in fitted black and deep-violet leather, twin curved daggers, hood half-down over silver hair, wisps of shadow where her own shadow should be, cool moonlit palette",
   art: { portrait: "assets/characters/nyx/portrait.png", battle: "assets/characters/nyx/battle.png" },
   lore: "A blade-for-hire who sold her shadow for an edge that never dulls.",
 };

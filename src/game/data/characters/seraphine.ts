@@ -11,6 +11,8 @@ export const seraphine: Character = {
   maxMp: 140,
   mpRegen: 16,
   skills: ["solar-flare", "dawn-chorus", "mending-light"],
+  artPrompt:
+    "radiant woman with long platinum hair and pale-gold eyes, flowing white robes edged with sunlight, a slender staff topped with a small sun, dawn light breaking behind her",
   art: { portrait: "assets/characters/seraphine/portrait.png", battle: "assets/characters/seraphine/battle.png" },
   lore: "The last Dawnspeaker. Where she walks, the dark takes a step back.",
 };

@@ -11,6 +11,8 @@ export const hana: Character = {
   maxMp: 130,
   mpRegen: 18,
   skills: ["mending-light", "dawn-chorus"],
+  artPrompt:
+    "serene woman in white and vermilion shrine robes holding a paper lantern that glows warm gold, long dark hair, a soft halo of light, deep-blue night behind her",
   art: { portrait: "assets/characters/hana/portrait.png", battle: "assets/characters/hana/battle.png" },
   lore: "A shrine keeper whose lanterns never go out, no matter the night.",
 };

@@ -10,6 +10,7 @@ const list: Enemy[] = [
     maxMp: 60,
     mpRegen: 10,
     skills: [],
+    artPrompt: "small floating orb of living fire with two glowing eyes and trailing embers, dark background",
     art: { battle: "assets/enemies/wisp/battle.png" },
   },
   {
@@ -21,6 +22,7 @@ const list: Enemy[] = [
     maxMp: 50,
     mpRegen: 8,
     skills: ["frost-pierce"],
+    artPrompt: "lean wolf made of pale blue ice and frost, breath fogging, jagged icicle spines, snowy ground",
     art: { battle: "assets/enemies/frost-hound/battle.png" },
   },
   {
@@ -32,6 +34,7 @@ const list: Enemy[] = [
     maxMp: 70,
     mpRegen: 12,
     skills: ["gale-slash"],
+    artPrompt: "swift translucent sprite of swirling green wind with a comet tail of leaves, blurred motion",
     art: { battle: "assets/enemies/gale-sprite/battle.png" },
   },
   {
@@ -43,6 +46,7 @@ const list: Enemy[] = [
     maxMp: 40,
     mpRegen: 6,
     skills: ["stone-maul"],
+    artPrompt: "hulking humanoid built from cracked boulders and moss, glowing amber seams, heavy fists, quarry dust",
     art: { battle: "assets/enemies/stone-golem/battle.png" },
   },
   {
@@ -54,6 +58,7 @@ const list: Enemy[] = [
     maxMp: 90,
     mpRegen: 12,
     skills: ["thunder-spike", "chain-lightning"],
+    artPrompt: "slender winged drake wreathed in arcing lightning, storm-grey scales, crackling maw, thunderclouds",
     art: { battle: "assets/enemies/storm-drake/battle.png" },
   },
   {
@@ -65,6 +70,7 @@ const list: Enemy[] = [
     maxMp: 80,
     mpRegen: 11,
     skills: ["frost-pierce"],
+    artPrompt: "long sinuous sea serpent of deep-blue water and foam, finned crest, coiling, spray and waves",
     art: { battle: "assets/enemies/tide-serpent/battle.png" },
   },
   {
@@ -76,6 +82,7 @@ const list: Enemy[] = [
     maxMp: 85,
     mpRegen: 12,
     skills: ["hex"],
+    artPrompt: "faceless humanoid silhouette of oily black smoke with two dim violet eyes, tendrils dissolving at the edges",
     art: { battle: "assets/enemies/shade/battle.png" },
   },
   {
@@ -88,6 +95,7 @@ const list: Enemy[] = [
     maxMp: 160,
     mpRegen: 18,
     skills: ["inferno-wave", "ember-lance", "war-cry"],
+    artPrompt: "massive coiled dragon of blackened scales and molten cracks pouring smoke and cinders, huge horned head, ash storm, boss creature",
     art: { battle: "assets/enemies/cinder-wyrm/battle.png" },
   },
 ];

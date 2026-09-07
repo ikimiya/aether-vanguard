@@ -25,6 +25,7 @@ sections below.
 | Watch tests | `npm run test:watch` |
 | Type-check only | `npm run typecheck` |
 | Regenerate placeholder art | `npm run gen:art` |
+| AI-generate real art | `npm run gen:ai-art -- --dry-run` (see "AI art") |
 | Scaffold a character / banner | `npm run scaffold -- character …` / `npm run scaffold -- banner …` |
 | Validate the static data | `npm run validate` (schema / refs / assets; `gen:sql` runs it first) |
 | Regenerate the DB config seed | `npm run gen:sql` (after any `src/game/data/` change) |
@@ -267,6 +268,26 @@ The home menu shows `public/assets/menu-bg.png` as a full-screen wallpaper —
 overwrite that one file to change it (any wide image, ~16:10). A character's
 optional `art.splash` overrides it while that unit leads the team. `npm run
 gen:art` regenerates `menu-bg.png` (and every other placeholder).
+
+### AI art (optional)
+
+`npm run gen:ai-art` fills the asset folders from each data object's optional
+`artPrompt` (one-line, purely visual — no name references), via the Google
+Gemini image API, resized to the exact placeholder dimensions.
+
+1. Free key at <https://aistudio.google.com/apikey> → `GEMINI_API_KEY=…` in `.env`
+   (dev-only; not bundled — see `.env.example`).
+2. Add `artPrompt` to the `Character` / `Enemy` / `Banner` object (`menu-bg` uses
+   a constant in the script). Most units already have one; `ayaka` and `emilia`
+   don't (write your own or supply art directly).
+3. `npm run gen:ai-art -- --dry-run` to review the composed prompts, then drop
+   `--dry-run`. Flags: `--only <id>` (or `--only menu-bg`), `--type
+   portrait|battle|enemy|banner|bg`, `--force`, `--delay <ms>`.
+
+By default it only touches files that are missing or still a placeholder
+(< 64 KB) — hand-placed art (e.g. `characters/emilia/*`) is left alone unless
+`--force`. Free-tier rate limits are low; re-roll a result with
+`--only <id> --force`.
 
 ## Deployment
 

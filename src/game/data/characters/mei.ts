@@ -11,6 +11,8 @@ export const mei: Character = {
   maxMp: 100,
   mpRegen: 13,
   skills: ["gale-slash"],
+  artPrompt:
+    "lithe girl with short windswept pale-green hair, goggles on her forehead, light courier's harness and running boots, caught mid-stride, swirling wind currents",
   art: { portrait: "assets/characters/mei/portrait.png", battle: "assets/characters/mei/battle.png" },
   lore: "A courier who outruns storms for sport. Hits first, every time.",
 };

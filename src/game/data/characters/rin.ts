@@ -11,6 +11,8 @@ export const rin: Character = {
   maxMp: 120,
   mpRegen: 16,
   skills: ["mending-light"],
+  artPrompt:
+    "calm young woman with teal braided hair, a field medic's satchel of bandages, water-blue coat, gentle steady expression, soft ripples of water light",
   art: { portrait: "assets/characters/rin/portrait.png", battle: "assets/characters/rin/battle.png" },
   lore: "A field medic from the river country who never leaves a squadmate behind.",
 };

@@ -11,6 +11,8 @@ export const kai: Character = {
   maxMp: 100,
   mpRegen: 12,
   skills: ["ember-lance"],
+  artPrompt:
+    "young man with tousled orange hair, fingerless gloves, torn hooded jacket, cocky grin, ember sparks curling around his fists, warm firelight",
   art: { portrait: "assets/characters/kai/portrait.png", battle: "assets/characters/kai/battle.png" },
   lore: "A hot-headed street brawler who learned fire magic to keep up with his temper.",
 };

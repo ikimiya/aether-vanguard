@@ -11,6 +11,8 @@ export const garrett: Character = {
   maxMp: 96,
   mpRegen: 12,
   skills: ["stone-maul", "war-cry"],
+  artPrompt:
+    "grizzled older soldier with short grey hair and a jaw scar, weathered dark plate armor with a faded captain's sash, one hand resting on a longsword hilt, resolute stare, muted battlefield tones",
   art: { portrait: "assets/characters/garrett/portrait.png", battle: "assets/characters/garrett/battle.png" },
   lore: "A retired vanguard captain who came back for one more campaign.",
 };

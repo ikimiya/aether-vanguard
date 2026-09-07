@@ -11,6 +11,8 @@ export const sora: Character = {
   maxMp: 108,
   mpRegen: 14,
   skills: ["thunder-spike", "chain-lightning"],
+  artPrompt:
+    "wiry youth with spiked hair streaked yellow, a glowing bottled spark on a cord at the neck, weatherproof coat crackling with static, grinning up at the sky",
   art: { portrait: "assets/characters/sora/portrait.png", battle: "assets/characters/sora/battle.png" },
   lore: "A storm-chaser who bottled a lightning strike and never quite let go of it.",
 };

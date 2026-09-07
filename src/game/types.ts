@@ -26,6 +26,9 @@ export interface Character {
   /** Shards to reach each star (target star 2..MAX_STAR). Any omitted key falls
    *  back to the global `STAR_UP_SHARDS` curve. */
   starUp?: Partial<Record<2 | 3 | 4 | 5, number>>;
+  /** One-line visual description for `npm run gen:ai-art` (purely visual — no
+   *  name references). Optional; the script skips units without it. */
+  artPrompt?: string;
   /** `splash`, if set, is the home-menu wallpaper while this unit leads the team. */
   art: { portrait: string; battle: string; splash?: string };
   lore?: string;
@@ -81,6 +84,8 @@ export interface Enemy {
   maxMp: number;
   mpRegen: number;
   skills: string[];
+  /** One-line visual description for `npm run gen:ai-art`. */
+  artPrompt?: string;
   art: { battle: string };
   boss?: boolean;
 }
@@ -140,6 +145,8 @@ export interface Banner {
   featuredRate?: Partial<Record<Rarity, number>>;
   /** Character ids eligible as non-featured pulls. Omit for "all characters". */
   poolCharacters?: string[];
+  /** One-line visual description for `npm run gen:ai-art` (banner splash scene). */
+  artPrompt?: string;
   /** ISO timestamps. Omitted `startsAt` = live now; omitted `endsAt` = no end.
    *  The window is enforced server-side by `pull_banner`. */
   startsAt?: string;
