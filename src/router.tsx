@@ -5,26 +5,28 @@ import { RequireAuth } from "./auth/RequireAuth";
 import { Home } from "./screens/Home";
 import { Login } from "./screens/Login";
 import { Signup } from "./screens/Signup";
+import { StageSelect } from "./screens/StageSelect";
+import { Roster } from "./screens/Roster";
+import { CharacterDetail } from "./screens/CharacterDetail";
+import { Gacha } from "./screens/Gacha";
 
-// Phaser is ~1.4 MB, so the battle route is split out of the main bundle and
-// only fetched when the player enters a battle.
-const BattleSandbox = lazy(() =>
-  import("./screens/BattleSandbox").then((m) => ({ default: m.BattleSandbox })),
-);
+// Phaser is ~1.4 MB, so battle routes are split out of the main bundle and
+// only fetched when the player enters a fight.
+const lazyScreen = (load: () => Promise<{ [k: string]: React.ComponentType }>, name: string) => {
+  const C = lazy(() => load().then((m) => ({ default: m[name] })));
+  return (
+    <Suspense fallback={<p>Loading…</p>}>
+      <C />
+    </Suspense>
+  );
+};
 
 // HashRouter: GitHub Pages serves a single index.html, so client-side deep
-// links (`/gacha`, `/battle`) must live after the `#` to avoid 404s.
-const battleSandbox = (
-  <Suspense fallback={<p>Loading battle…</p>}>
-    <BattleSandbox />
-  </Suspense>
-);
-
+// links must live after the `#` to avoid 404s.
 export const router = createHashRouter([
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
-  // Dev sandbox: fixed team, no account data — kept outside the auth guard.
-  { path: "/sandbox", element: battleSandbox },
+  { path: "/sandbox", element: lazyScreen(() => import("./screens/BattleSandbox"), "BattleSandbox") },
   {
     path: "/",
     element: (
@@ -34,7 +36,12 @@ export const router = createHashRouter([
     ),
     children: [
       { index: true, element: <Home /> },
-      { path: "battle", element: battleSandbox },
+      { path: "stages", element: <StageSelect /> },
+      { path: "stages/:stageId", element: lazyScreen(() => import("./screens/StageBattle"), "StageBattle") },
+      { path: "gacha", element: <Gacha /> },
+      { path: "roster", element: <Roster /> },
+      { path: "roster/:characterKey", element: <CharacterDetail /> },
+      { path: "endless", element: lazyScreen(() => import("./screens/Endless"), "Endless") },
     ],
   },
 ]);

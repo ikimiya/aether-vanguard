@@ -1,43 +1,38 @@
 import { Link } from "react-router-dom";
+import { useGameData } from "../game-data/GameDataProvider";
+import { STAGE_ORDER } from "../game/data/stages";
 
-const LOOP = ["Battle", "Rewards", "Gacha", "Level Up", "Gacha"];
+const steps: { to: string; label: string; blurb: string }[] = [
+  { to: "/stages", label: "Battle", blurb: "Clear stages for rewards" },
+  { to: "/gacha", label: "Gacha", blurb: "Spend gems on new units" },
+  { to: "/roster", label: "Level Up", blurb: "Grow your team" },
+  { to: "/endless", label: "Endless", blurb: "See how far you get" },
+];
 
 export function Home() {
+  const { roster, endless, clearedStageIds } = useGameData();
+  const cleared = STAGE_ORDER.filter((id) => clearedStageIds.has(id)).length;
+
   return (
     <div>
-      <h1>Aether Vanguard</h1>
+      <h1 style={{ marginTop: 0 }}>Welcome back, Commander</h1>
       <p style={{ color: "var(--muted)" }}>
-        A turn-based anime gacha game. Clear stages or push endless mode.
+        {roster?.length ?? 0} units · {cleared}/{STAGE_ORDER.length} stages cleared · best endless wave{" "}
+        {endless?.best_wave ?? 0}
       </p>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-          alignItems: "center",
-          margin: "1.5rem 0",
-        }}
-      >
-        {LOOP.map((step, i) => (
-          <span key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span
-              style={{
-                background: "var(--panel-2)",
-                borderRadius: 999,
-                padding: "0.35rem 0.8rem",
-              }}
-            >
-              {step}
-            </span>
-            {i < LOOP.length - 1 && <span style={{ color: "var(--muted)" }}>→</span>}
-          </span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
+        {steps.map((s) => (
+          <Link
+            key={s.to}
+            to={s.to}
+            style={{ textDecoration: "none", color: "var(--text)", background: "var(--panel)", borderRadius: 12, padding: "1rem" }}
+          >
+            <div style={{ fontWeight: 700 }}>{s.label}</div>
+            <div style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{s.blurb}</div>
+          </Link>
         ))}
       </div>
-
-      <Link to="/battle">
-        <button>Open Battle Sandbox</button>
-      </Link>
     </div>
   );
 }
