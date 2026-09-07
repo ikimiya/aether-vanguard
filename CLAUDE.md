@@ -89,7 +89,13 @@ Supporting:
   SQL; the tests here are the spec both must satisfy.
 - **`src/game/endless.ts`** — deterministic scaled wave generator. Pure.
 - **`src/battle/BattleView.tsx`** — React shell that owns a `BattleState`,
-  renders `<PhaserBattle>` plus the action/target/swap/result UI.
+  renders `<PhaserBattle>` plus the action/target/swap/result UI. While mounted
+  it holds the battle lock (`src/battle/BattleLock.tsx`), which strips the nav
+  out of `AppLayout`'s header so a stray tap can't leave a fight; Retreat is a
+  two-step confirm.
+- **`src/gacha/SummonAnimation.tsx`** — full-screen pull reveal (charging orb →
+  burst → one card at a time, tap to advance). Shown by `Gacha` before the
+  results grid; skips itself under `prefers-reduced-motion`.
 
 ### Routes
 

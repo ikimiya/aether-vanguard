@@ -6,10 +6,12 @@ import { RARITIES } from "../game/data/gacha/rarities";
 import { pullBanner } from "../lib/operations";
 import type { PullOutcome } from "../game/gacha";
 import { assetUrl } from "../ui/assets";
+import { SummonAnimation } from "../gacha/SummonAnimation";
 
 export function Gacha() {
   const { currencies, gachaState, reload } = useGameData();
   const [results, setResults] = useState<PullOutcome[] | null>(null);
+  const [pending, setPending] = useState<PullOutcome[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +20,7 @@ export function Gacha() {
     setError(null);
     try {
       const outcomes = await pullBanner(bannerId, count);
-      setResults(outcomes);
+      setPending(outcomes);
       await reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Pull failed");
@@ -69,6 +71,15 @@ export function Gacha() {
 
   return (
     <div>
+      {pending && (
+        <SummonAnimation
+          outcomes={pending}
+          onDone={() => {
+            setResults(pending);
+            setPending(null);
+          }}
+        />
+      )}
       <h2 style={{ marginTop: 0 }}>Gacha</h2>
       {gachaState && (
         <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>
@@ -93,10 +104,10 @@ export function Gacha() {
                   </p>
                 ) : null}
                 <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                  <button disabled={busy || !can1} onClick={() => pull(b.id, 1)}>
+                  <button disabled={busy || !!pending || !can1} onClick={() => pull(b.id, 1)}>
                     Pull ×1 ({b.costPerPull})
                   </button>
-                  <button disabled={busy || !can10} onClick={() => pull(b.id, 10)}>
+                  <button disabled={busy || !!pending || !can10} onClick={() => pull(b.id, 10)}>
                     Pull ×10 ({b.costPerPull * 10})
                   </button>
                 </div>

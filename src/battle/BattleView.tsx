@@ -13,6 +13,7 @@ import {
 } from "../game/engine";
 import { getSkill } from "../game/data/skills";
 import { PhaserBattle } from "../phaser/PhaserBattle";
+import { useHoldBattleLock } from "./BattleLock";
 
 export interface BattleResult {
   won: boolean;
@@ -35,6 +36,9 @@ export function BattleView({
 }) {
   const [state, setState] = useState<BattleState>(() => createBattle(config));
   const [targeting, setTargeting] = useState<Targeting>(null);
+  const [confirmExit, setConfirmExit] = useState(false);
+
+  useHoldBattleLock();
 
   const active = activeUnit(state);
   const terminal =
@@ -113,9 +117,25 @@ export function BattleView({
         )}
       </div>
 
-      <button onClick={onExit} style={{ background: "var(--panel-2)", marginTop: "0.5rem" }}>
-        Retreat
-      </button>
+      {terminal === null &&
+        (confirmExit ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+            <span style={{ color: "var(--muted)" }}>Forfeit this battle?</span>
+            <button onClick={onExit} style={{ background: "#a33333" }}>
+              Confirm retreat
+            </button>
+            <button onClick={() => setConfirmExit(false)} style={{ background: "var(--panel-2)" }}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmExit(true)}
+            style={{ background: "var(--panel-2)", marginTop: "0.5rem" }}
+          >
+            Retreat
+          </button>
+        ))}
     </div>
   );
 }
