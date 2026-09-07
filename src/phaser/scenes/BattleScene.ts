@@ -40,8 +40,8 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.rectangle(0, 0, W, H, 0x12151f).setOrigin(0);
-    this.add.rectangle(0, H * 0.62, W, H * 0.38, 0x1c2130).setOrigin(0);
+    this.add.rectangle(0, 0, W, H, 0x0b0d14).setOrigin(0);
+    this.add.rectangle(0, H * 0.62, W, H * 0.38, 0x141824).setOrigin(0);
     const initial = this.game.registry.get("state") as BattleState | undefined;
     if (initial) this.syncState(initial, true);
   }

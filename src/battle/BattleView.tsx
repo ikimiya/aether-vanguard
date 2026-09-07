@@ -71,14 +71,14 @@ export function BattleView({
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <h2 style={{ margin: "0 0 0.5rem" }}>{title}</h2>
-        <span style={{ color: "var(--muted)" }}>Round {state.round}</span>
+      <div className="page-head" style={{ marginBottom: "var(--s-3)" }}>
+        <h2 style={{ margin: 0 }}>{title}</h2>
+        <span className="chip">Round {state.round}</span>
       </div>
 
       <PhaserBattle config={config} state={state} />
 
-      <div style={{ marginTop: "0.75rem", minHeight: 120 }}>
+      <div style={{ marginTop: "var(--s-3)", minHeight: 120 }}>
         {terminal !== null ? (
           <ResultPanel
             won={terminal}
@@ -113,25 +113,26 @@ export function BattleView({
             onSkill={(id) => chooseAction({ kind: "skill", skillId: id })}
           />
         ) : (
-          <p style={{ color: "var(--muted)" }}>Resolving…</p>
+          <p className="muted">Resolving…</p>
         )}
       </div>
 
       {terminal === null &&
         (confirmExit ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ color: "var(--muted)" }}>Forfeit this battle?</span>
-            <button onClick={onExit} style={{ background: "#a33333" }}>
+          <div className="row" style={{ marginTop: "var(--s-2)" }}>
+            <span className="muted">Forfeit this battle?</span>
+            <button className="btn--danger btn--sm" onClick={onExit}>
               Confirm retreat
             </button>
-            <button onClick={() => setConfirmExit(false)} style={{ background: "var(--panel-2)" }}>
+            <button className="btn--ghost btn--sm" onClick={() => setConfirmExit(false)}>
               Cancel
             </button>
           </div>
         ) : (
           <button
+            className="btn--ghost btn--sm"
             onClick={() => setConfirmExit(true)}
-            style={{ background: "var(--panel-2)", marginTop: "0.5rem" }}
+            style={{ marginTop: "var(--s-2)" }}
           >
             Retreat
           </button>
@@ -156,13 +157,13 @@ function ActionPanel({
   onSkill: (id: string) => void;
 }) {
   return (
-    <div>
-      <p style={{ margin: "0 0 0.4rem", color: "var(--muted)" }}>
+    <div className="panel">
+      <p style={{ margin: "0 0 var(--s-2)" }} className="muted">
         <strong style={{ color: "var(--text)" }}>{unit.name}</strong> · MP {unit.mp}/{unit.maxMp}
       </p>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <div className="cluster">
         <button onClick={onAttack}>Attack</button>
-        <button onClick={onDefend} style={{ background: "var(--panel-2)" }}>
+        <button className="btn--ghost" onClick={onDefend}>
           Defend
         </button>
         {skills.map((s) => (
@@ -171,7 +172,7 @@ function ActionPanel({
           </button>
         ))}
         {lockedSkills.map((s) => (
-          <button key={s.id} disabled title={`Needs ${s.mpCost} MP`}>
+          <button className="btn--ghost" key={s.id} disabled title={`Needs ${s.mpCost} MP`}>
             {s.name} <small>({s.mpCost})</small>
           </button>
         ))}
@@ -190,15 +191,15 @@ function TargetPanel({
   onCancel: () => void;
 }) {
   return (
-    <div>
-      <p style={{ margin: "0 0 0.4rem", color: "var(--muted)" }}>Choose a target</p>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+    <div className="panel">
+      <p style={{ margin: "0 0 var(--s-2)" }} className="muted">Choose a target</p>
+      <div className="cluster">
         {pool.map((u) => (
           <button key={u.uid} onClick={() => onPick(u.uid)}>
             {u.name} <small>({u.hp}/{u.stats.hp})</small>
           </button>
         ))}
-        <button onClick={onCancel} style={{ background: "var(--panel-2)" }}>
+        <button className="btn--ghost" onClick={onCancel}>
           Back
         </button>
       </div>
@@ -216,11 +217,11 @@ function SwapPanel({
   onSwap: (uid: string) => void;
 }) {
   return (
-    <div>
-      <p style={{ margin: "0 0 0.4rem", color: "var(--muted)" }}>
+    <div className="panel">
+      <p style={{ margin: "0 0 var(--s-2)" }} className="muted">
         Slot {slot + 1} is down — send in a reserve
       </p>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <div className="cluster">
         {bench.map((u) => (
           <button key={u.uid} onClick={() => onSwap(u.uid)}>
             {u.name} <small>({u.hp}/{u.stats.hp})</small>
@@ -243,9 +244,11 @@ function ResultPanel({
   onContinue: () => void;
 }) {
   return (
-    <div style={{ background: "var(--panel)", borderRadius: 10, padding: "1rem" }}>
-      <h3 style={{ margin: "0 0 0.3rem" }}>{won ? "Victory" : "Defeat"}</h3>
-      <p style={{ margin: "0 0 0.6rem", color: "var(--muted)" }}>
+    <div className="result-panel stack">
+      <h2 style={{ margin: 0, color: won ? "var(--good)" : "var(--danger)" }}>
+        {won ? "Victory" : "Defeat"}
+      </h2>
+      <p className="muted" style={{ margin: 0 }}>
         {rounds} round{rounds === 1 ? "" : "s"}
         {won && noDeaths ? " · flawless" : ""}
       </p>

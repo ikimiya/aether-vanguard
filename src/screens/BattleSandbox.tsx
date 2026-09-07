@@ -22,31 +22,33 @@ export function BattleSandbox() {
     const stage = getStage(stageId);
     const config: BattleConfig = { seed: Date.now() % 100000, party: DEV_TEAM, waves: stage.waves };
     return (
-      <BattleView
-        config={config}
-        title={`${stage.id} · ${stage.name}`}
-        onFinish={(r) => {
-          setResult(r);
-          setStageId(null);
-        }}
-        onExit={() => setStageId(null)}
-      />
+      <div className="page">
+        <BattleView
+          config={config}
+          title={`${stage.id} · ${stage.name}`}
+          onFinish={(r) => {
+            setResult(r);
+            setStageId(null);
+          }}
+          onExit={() => setStageId(null)}
+        />
+      </div>
     );
   }
 
   return (
-    <div>
-      <h2>Battle Sandbox</h2>
+    <div className="page">
+      <h1>Battle Sandbox</h1>
       {result && (
-        <p style={{ color: result.won ? "#69f0ae" : "#ff8a80" }}>
+        <p style={{ color: result.won ? "var(--good)" : "var(--danger)" }}>
           Last run: {result.won ? "Victory" : "Defeat"} in {result.rounds} rounds
           {result.won && result.noDeaths ? " (flawless)" : ""}.
         </p>
       )}
-      <p style={{ color: "var(--muted)" }}>Fixed dev team. Pick a stage:</p>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <p className="muted">Fixed dev team. Pick a stage:</p>
+      <div className="cluster">
         {STAGE_IDS.map((id) => (
-          <button key={id} onClick={() => setStageId(id)}>
+          <button className="btn--ghost" key={id} onClick={() => setStageId(id)}>
             {getStage(id).id} · {getStage(id).name}
           </button>
         ))}

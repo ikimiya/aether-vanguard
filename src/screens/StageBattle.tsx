@@ -32,30 +32,42 @@ export function StageBattle() {
     [stage, party],
   );
 
-  if (!stage) return <p>Unknown stage. <button onClick={() => navigate("/stages")}>Back</button></p>;
+  if (!stage)
+    return (
+      <p className="row">
+        Unknown stage. <button className="btn--sm" onClick={() => navigate("/stages")}>Back</button>
+      </p>
+    );
   if (party.length === 0) {
     return (
-      <p>
-        You have no deployable units. Try the <button onClick={() => navigate("/gacha")}>Gacha</button>.
+      <p className="row">
+        No deployable units.{" "}
+        <button className="btn--sm" onClick={() => navigate("/gacha")}>Gacha</button>
       </p>
     );
   }
 
   if (summary) {
     return (
-      <div style={{ background: "var(--panel)", borderRadius: 12, padding: "1.25rem" }}>
-        <h2 style={{ marginTop: 0 }}>{stage.id} — {summary.stars > 0 ? "Cleared" : "Retreat"}</h2>
-        {summary.stars > 0 && <p style={{ color: "#ffd166" }}>{"★".repeat(summary.stars)}</p>}
-        {Object.keys(summary.rewards).length > 0 ? (
-          <ul style={{ color: "var(--muted)" }}>
-            {summary.rewards.gems ? <li>💎 {summary.rewards.gems} gems</li> : null}
-            {summary.rewards.gold ? <li>🪙 {summary.rewards.gold} gold</li> : null}
-            {summary.rewards.xp_items ? <li>📘 {summary.rewards.xp_items} xp items</li> : null}
-          </ul>
-        ) : (
-          <p style={{ color: "var(--muted)" }}>No rewards this time.</p>
+      <div className="result-panel stack">
+        <h2 style={{ margin: 0 }}>
+          {stage.id} — {summary.stars > 0 ? "Cleared" : "Retreat"}
+        </h2>
+        {summary.stars > 0 && (
+          <p style={{ margin: 0, color: "var(--gold)", fontSize: "var(--fs-lg)" }}>
+            {"★".repeat(summary.stars)}
+          </p>
         )}
-        {summary.firstClear && <p style={{ color: "var(--accent-2)" }}>First clear!</p>}
+        {Object.keys(summary.rewards).length > 0 ? (
+          <div className="cluster">
+            {summary.rewards.gems ? <span className="chip">💎 {summary.rewards.gems}</span> : null}
+            {summary.rewards.gold ? <span className="chip">🪙 {summary.rewards.gold}</span> : null}
+            {summary.rewards.xp_items ? <span className="chip">📘 {summary.rewards.xp_items}</span> : null}
+          </div>
+        ) : (
+          <p className="muted" style={{ margin: 0 }}>No rewards this time.</p>
+        )}
+        {summary.firstClear && <span className="chip chip--accent">First clear!</span>}
         <button onClick={() => navigate("/stages")}>Back to stages</button>
       </div>
     );
@@ -78,7 +90,7 @@ export function StageBattle() {
 
   return (
     <>
-      {busy && <p style={{ color: "var(--muted)" }}>Saving…</p>}
+      {busy && <p className="muted">Saving…</p>}
       <BattleView
         config={config}
         title={`${stage.id} · ${stage.name}`}

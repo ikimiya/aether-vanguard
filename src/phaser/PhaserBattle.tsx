@@ -17,7 +17,7 @@ export function PhaserBattle({ config, state }: { config: BattleConfig; state: B
       parent: hostRef.current!,
       width: W,
       height: H,
-      backgroundColor: "#12151f",
+      backgroundColor: "#0b0d14",
       scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     });
     game.registry.set("config", config);

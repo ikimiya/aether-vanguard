@@ -62,11 +62,6 @@
   --dur: 160ms;
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 
-  /* back-compat aliases (removed once every screen uses tokens) */
-  --panel: var(--surface-1);
-  --panel-2: var(--surface-2);
-  --muted: var(--text-dim);
-
   font-family: var(--font);
 }
 
@@ -257,6 +252,7 @@ input:focus {
   justify-content: space-between;
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
+  background: var(--bg);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -349,6 +345,7 @@ a.brand:hover {
   justify-content: space-around;
   gap: var(--s-1);
   padding: var(--s-2) var(--s-2) calc(var(--s-2) + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);

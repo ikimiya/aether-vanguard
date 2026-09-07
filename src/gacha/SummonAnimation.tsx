@@ -57,16 +57,10 @@ export function SummonAnimation({
 
   return (
     <div
+      className="overlay"
       onClick={advance}
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
         background: "radial-gradient(circle at 50% 42%, #10131f, #05060a 70%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
         cursor: "pointer",
         userSelect: "none",
       }}
@@ -115,21 +109,22 @@ export function SummonAnimation({
 
       {phase === "reveal" && (
         <>
-          <div style={{ position: "absolute", top: 18, left: 0, right: 0, textAlign: "center", color: "var(--muted)", fontSize: "0.8rem" }}>
+          <div style={{ position: "absolute", top: 18, left: 0, right: 0, textAlign: "center", color: "var(--text-dim)", fontSize: "0.8rem" }}>
             {index + 1} / {outcomes.length}
           </div>
-          <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center", color: "var(--muted)", fontSize: "0.8rem" }}>
+          <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center", color: "var(--text-dim)", fontSize: "0.8rem" }}>
             tap to continue
           </div>
         </>
       )}
 
       <button
+        className="btn--ghost btn--sm"
         onClick={(e) => {
           e.stopPropagation();
           onDone();
         }}
-        style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.14)", fontSize: "0.85rem" }}
+        style={{ position: "absolute", top: 14, right: 14 }}
       >
         Skip →
       </button>
@@ -162,8 +157,8 @@ function RevealCard({ outcome }: { outcome: PullOutcome }) {
         alt={c.name}
         style={{
           position: "relative",
-          width: 200,
-          borderRadius: 12,
+          width: "min(220px, 58vw)",
+          borderRadius: 14,
           border: `3px solid ${color}`,
           boxShadow: `0 0 28px ${color}, 0 0 64px ${color}80`,
         }}
@@ -174,7 +169,7 @@ function RevealCard({ outcome }: { outcome: PullOutcome }) {
       <div style={{ position: "relative", color, letterSpacing: 3, fontSize: "1.1rem" }}>
         {"★".repeat(outcome.rarity)}
       </div>
-      <div style={{ position: "relative", marginTop: "0.25rem", fontSize: "0.85rem", color: "var(--muted)" }}>
+      <div style={{ position: "relative", marginTop: "0.25rem", fontSize: "0.85rem", color: "var(--text-dim)" }}>
         {outcome.isNew ? "NEW" : `+${outcome.dupeShards} shards`}
         {outcome.isFeatured ? " · Featured" : ""}
       </div>

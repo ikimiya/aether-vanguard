@@ -55,12 +55,12 @@ export function Signup() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && <p style={{ color: "#ff8080" }}>{error}</p>}
-        <button type="submit" disabled={busy}>
+        {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+        <button className="btn--block" type="submit" disabled={busy}>
           {busy ? "Creating…" : "Create account"}
         </button>
       </form>
-      <p style={{ color: "var(--muted)" }}>
+      <p className="muted" style={{ marginTop: "var(--s-4)" }}>
         Already have an account? <Link to="/login">Sign in</Link>
       </p>
     </AuthShell>

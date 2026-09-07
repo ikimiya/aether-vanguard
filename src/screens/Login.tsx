@@ -45,12 +45,12 @@ export function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && <p style={{ color: "#ff8080" }}>{error}</p>}
-        <button type="submit" disabled={busy}>
+        {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+        <button className="btn--block" type="submit" disabled={busy}>
           {busy ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p style={{ color: "var(--muted)" }}>
+      <p className="muted" style={{ marginTop: "var(--s-4)" }}>
         No account? <Link to="/signup">Create one</Link>
       </p>
     </AuthShell>
