@@ -22,7 +22,12 @@ export function Endless() {
   );
 
   if (party.length === 0) {
-    return <p>No deployable units. <button onClick={() => navigate("/gacha")}>Gacha</button></p>;
+    return (
+      <p className="row">
+        No deployable units.{" "}
+        <button className="btn--sm" onClick={() => navigate("/gacha")}>Gacha</button>
+      </p>
+    );
   }
 
   async function onFinish(result: BattleResult) {
@@ -39,10 +44,18 @@ export function Endless() {
 
   if (phase.kind === "done") {
     return (
-      <div style={{ background: "var(--panel)", borderRadius: 12, padding: "1.25rem" }}>
-        <h2 style={{ marginTop: 0 }}>Run over</h2>
-        <p>You cleared {phase.cleared} wave{phase.cleared === 1 ? "" : "s"}.</p>
-        <p style={{ color: "var(--muted)" }}>Best: {endless?.best_wave ?? 0}</p>
+      <div className="result-panel stack">
+        <h2 style={{ margin: 0 }}>Run over</h2>
+        <div className="row" style={{ gap: "var(--s-6)" }}>
+          <div className="stat">
+            <span className="stat__value">{phase.cleared}</span>
+            <span className="stat__label">waves cleared</span>
+          </div>
+          <div className="stat">
+            <span className="stat__value">{endless?.best_wave ?? 0}</span>
+            <span className="stat__label">best</span>
+          </div>
+        </div>
         <button onClick={() => navigate("/")}>Home</button>
       </div>
     );
@@ -67,23 +80,39 @@ export function Endless() {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Endless</h2>
-      <p style={{ color: "var(--muted)" }}>
-        Wave {wave} · best {endless?.best_wave ?? 0}. Teams start each wave at full strength; enemies keep scaling.
-      </p>
-      <button onClick={() => setPhase({ kind: "fighting" })}>Fight wave {wave}</button>{" "}
-      {wave > 1 && (
-        <button
-          style={{ background: "var(--panel-2)" }}
-          onClick={async () => {
-            await submitEndlessRun(wave - 1);
-            await reload();
-            setPhase({ kind: "done", cleared: wave - 1 });
-          }}
-        >
-          Bank {wave - 1} & stop
-        </button>
-      )}
+      <div className="page-head">
+        <h1>Endless</h1>
+      </div>
+      <div className="panel--raised stack">
+        <div className="row" style={{ gap: "var(--s-6)" }}>
+          <div className="stat">
+            <span className="stat__value">{wave}</span>
+            <span className="stat__label">current wave</span>
+          </div>
+          <div className="stat">
+            <span className="stat__value">{endless?.best_wave ?? 0}</span>
+            <span className="stat__label">best</span>
+          </div>
+        </div>
+        <p className="muted" style={{ margin: 0, fontSize: "var(--fs-sm)" }}>
+          Teams start each wave at full strength; enemies keep scaling.
+        </p>
+        <div className="row">
+          <button onClick={() => setPhase({ kind: "fighting" })}>Fight wave {wave}</button>
+          {wave > 1 && (
+            <button
+              className="btn--ghost"
+              onClick={async () => {
+                await submitEndlessRun(wave - 1);
+                await reload();
+                setPhase({ kind: "done", cleared: wave - 1 });
+              }}
+            >
+              Bank {wave - 1} &amp; stop
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -18,72 +18,33 @@ export function Home() {
 
   return (
     <div>
-      <section
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          borderRadius: 16,
-          border: "1px solid #2a3048",
-          background: "linear-gradient(135deg, #1b1f34, #12141f 62%)",
-          padding: "2rem 1.5rem",
-          marginBottom: "1.25rem",
-        }}
-      >
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: 0.3,
-            background: "radial-gradient(560px circle at 82% -25%, var(--accent), transparent 60%)",
-          }}
-        />
-        <div style={{ position: "relative" }}>
-          <div style={{ color: "var(--accent-2)", letterSpacing: 3, fontSize: "0.72rem", textTransform: "uppercase" }}>
-            Aether Vanguard
+      <section className="hero">
+        <div className="hero__eyebrow">Aether Vanguard</div>
+        <h1 style={{ margin: "0.4rem 0 0.9rem" }}>Welcome back, Commander</h1>
+        <div className="row" style={{ gap: "var(--s-6)" }}>
+          <div className="stat">
+            <span className="stat__value">{roster?.length ?? 0}</span>
+            <span className="stat__label">units</span>
           </div>
-          <h1 style={{ margin: "0.35rem 0 0.75rem", fontSize: "2rem" }}>Welcome back, Commander</h1>
-          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", color: "var(--muted)", fontSize: "0.9rem" }}>
-            <span>
-              <strong style={{ color: "var(--text)" }}>{roster?.length ?? 0}</strong> units
-            </span>
-            <span>
-              <strong style={{ color: "var(--text)" }}>
-                {cleared}/{total}
-              </strong>{" "}
-              stages cleared
-            </span>
-            <span>
-              best endless wave <strong style={{ color: "var(--text)" }}>{endless?.best_wave ?? 0}</strong>
-            </span>
+          <div className="stat">
+            <span className="stat__value">{cleared}/{total}</span>
+            <span className="stat__label">stages cleared</span>
           </div>
-          <Link
-            to="/stages"
-            style={{
-              display: "inline-block",
-              marginTop: "1.4rem",
-              background: "var(--accent)",
-              color: "var(--text)",
-              textDecoration: "none",
-              padding: "0.7rem 1.6rem",
-              borderRadius: 10,
-              fontWeight: 700,
-            }}
-          >
-            {cta}
-          </Link>
+          <div className="stat">
+            <span className="stat__value">{endless?.best_wave ?? 0}</span>
+            <span className="stat__label">best endless wave</span>
+          </div>
         </div>
+        <Link to="/stages" className="btn" style={{ marginTop: "var(--s-6)" }}>
+          {cta}
+        </Link>
       </section>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem" }}>
+      <div className="card-grid" style={{ "--card-min": "170px" } as React.CSSProperties}>
         {links.map((s) => (
-          <Link
-            key={s.to}
-            to={s.to}
-            style={{ textDecoration: "none", color: "var(--text)", background: "var(--panel)", borderRadius: 12, padding: "1rem" }}
-          >
+          <Link key={s.to} to={s.to} className="card" style={{ textAlign: "left", padding: "var(--s-4)" }}>
             <div style={{ fontWeight: 700 }}>{s.label}</div>
-            <div style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{s.blurb}</div>
+            <div className="card__meta">{s.blurb}</div>
           </Link>
         ))}
       </div>

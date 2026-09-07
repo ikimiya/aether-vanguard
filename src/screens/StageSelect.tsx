@@ -4,7 +4,12 @@ import { CHAPTER_1 } from "../game/data/stages/chapter-1";
 import { isStageUnlocked } from "../game/data/stages";
 
 function Stars({ n }: { n: number }) {
-  return <span style={{ color: "#ffd166" }}>{"★".repeat(n)}<span style={{ color: "var(--panel-2)" }}>{"★".repeat(3 - n)}</span></span>;
+  return (
+    <span style={{ color: "var(--gold)", letterSpacing: 1 }}>
+      {"★".repeat(n)}
+      <span style={{ color: "var(--surface-3)" }}>{"★".repeat(3 - n)}</span>
+    </span>
+  );
 }
 
 export function StageSelect() {
@@ -13,41 +18,48 @@ export function StageSelect() {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Chapter 1 — The Cinder Road</h2>
-      <div style={{ display: "grid", gap: "0.5rem" }}>
+      <div className="page-head">
+        <div>
+          <h1>Chapter 1</h1>
+          <p>The Cinder Road</p>
+        </div>
+      </div>
+
+      <div className="list">
         {CHAPTER_1.map((stage) => {
           const unlocked = isStageUnlocked(stage.id, clearedStageIds);
-          const body = (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                background: "var(--panel)",
-                borderRadius: 10,
-                padding: "0.75rem 1rem",
-                opacity: unlocked ? 1 : 0.45,
-              }}
-            >
+          const isBoss = stage.waves.flat().some((w) => w.enemyId === "cinder-wyrm");
+          const inner = (
+            <>
               <div>
-                <strong>{stage.id}</strong> · {stage.name}
-                <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>
-                  {stage.waves.length} wave{stage.waves.length === 1 ? "" : "s"}
-                  {stage.waves.flat().some((w) => w.enemyId === "cinder-wyrm") ? " · BOSS" : ""}
+                <div style={{ fontWeight: 600 }}>
+                  <span className="muted">{stage.id}</span> &nbsp;{stage.name}
+                </div>
+                <div className="cluster" style={{ marginTop: "var(--s-1)" }}>
+                  <span className="chip">
+                    {stage.waves.length} wave{stage.waves.length === 1 ? "" : "s"}
+                  </span>
+                  {isBoss && <span className="chip chip--accent">BOSS</span>}
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+              <div className="row" style={{ gap: "var(--s-3)", flexWrap: "nowrap" }}>
                 <Stars n={starsById.get(stage.id) ?? 0} />
-                {unlocked ? <span style={{ color: "var(--accent-2)" }}>Fight →</span> : <span>🔒</span>}
+                {unlocked ? (
+                  <span style={{ color: "var(--accent-2)" }}>Fight →</span>
+                ) : (
+                  <span aria-label="locked">🔒</span>
+                )}
               </div>
-            </div>
+            </>
           );
           return unlocked ? (
-            <Link key={stage.id} to={`/stages/${stage.id}`} style={{ textDecoration: "none", color: "var(--text)" }}>
-              {body}
+            <Link key={stage.id} to={`/stages/${stage.id}`} className="list-row">
+              {inner}
             </Link>
           ) : (
-            <div key={stage.id}>{body}</div>
+            <div key={stage.id} className="list-row is-locked">
+              {inner}
+            </div>
           );
         })}
       </div>

@@ -17,39 +17,35 @@ export function Roster() {
     });
   const hidden = all.length - owned.length;
 
-  if (owned.length === 0) return <p>No units yet — try the Gacha.</p>;
+  if (owned.length === 0) return <p className="muted">No units yet — try the Gacha.</p>;
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Roster ({owned.length})</h2>
+      <div className="page-head">
+        <h1>Roster</h1>
+        <span className="chip">{owned.length} units</span>
+      </div>
       {hidden > 0 && (
-        <p style={{ color: "var(--muted)", fontSize: "0.8rem" }}>
+        <p className="faint" style={{ fontSize: "0.8rem" }}>
           {hidden} unit{hidden === 1 ? "" : "s"} hidden — unrecognized character data.
         </p>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.6rem" }}>
+      <div className="card-grid" style={{ "--card-min": "132px" } as React.CSSProperties}>
         {owned.map((o) => {
           const c = getCharacter(o.character_key);
           return (
             <Link
               key={o.id}
               to={`/roster/${o.character_key}`}
-              style={{
-                textDecoration: "none",
-                color: "var(--text)",
-                background: "var(--panel)",
-                borderRadius: 10,
-                border: `2px solid ${RARITIES[c.rarity].color}`,
-                padding: "0.4rem",
-                textAlign: "center",
-              }}
+              className="card card--framed"
+              style={{ "--rarity": RARITIES[c.rarity].color } as React.CSSProperties}
             >
-              <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6, width: "100%" }} />
-              <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{c.name}</div>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
-                Lv {o.level} · <span style={{ color: "#ffd166" }}>{"★".repeat(o.star)}</span>
+              <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
+              <div className="card__name">{c.name}</div>
+              <div className="card__meta">
+                Lv {o.level} · <span style={{ color: "var(--gold)" }}>{"★".repeat(o.star)}</span>
               </div>
-              <div style={{ fontSize: "0.72rem", color: ELEMENT_COLORS[c.element] }}>{c.element}</div>
+              <div style={{ fontSize: "var(--fs-xs)", color: ELEMENT_COLORS[c.element] }}>{c.element}</div>
             </Link>
           );
         })}

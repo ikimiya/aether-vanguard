@@ -48,7 +48,7 @@ export function Formation() {
     }
   }
 
-  if (owned.length === 0) return <p>No units yet — try the Gacha.</p>;
+  if (owned.length === 0) return <p className="muted">No units yet — try the Gacha.</p>;
 
   const rosterSorted = [...owned].sort((a, b) => {
     const ra = getCharacter(a.character_key).rarity;
@@ -58,13 +58,17 @@ export function Formation() {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Team</h2>
-      <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginTop: 0 }}>
-        First {ACTIVE_SLOTS} deploy; the last {TEAM_SIZE - ACTIVE_SLOTS} are the bench for
-        mid-battle swaps. Order sets turn priority.
-      </p>
+      <div className="page-head">
+        <div>
+          <h1>Team</h1>
+          <p>
+            First {ACTIVE_SLOTS} deploy; the last {TEAM_SIZE - ACTIVE_SLOTS} bench for mid-battle
+            swaps. Order sets turn priority.
+          </p>
+        </div>
+      </div>
 
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+      <div className="card-grid" style={{ "--card-min": "116px", marginBottom: "var(--s-4)" } as React.CSSProperties}>
         {Array.from({ length: TEAM_SIZE }, (_, slot) => {
           const key = draft[slot];
           const active = slot < ACTIVE_SLOTS;
@@ -72,67 +76,59 @@ export function Formation() {
           return (
             <div
               key={slot}
+              className="card card--framed"
               style={{
-                width: 116,
-                background: "var(--panel)",
-                borderRadius: 10,
-                border: `2px solid ${c ? RARITIES[c.rarity].color : "#333a4f"}`,
-                padding: "0.4rem",
-                textAlign: "center",
+                "--rarity": c ? RARITIES[c.rarity].color : "var(--line-strong)",
                 opacity: c ? 1 : 0.6,
-              }}
+              } as React.CSSProperties}
             >
-              <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+              <div className="card__meta" style={{ marginBottom: "var(--s-1)" }}>
                 {active ? `Active ${slot + 1}` : "Bench"}
               </div>
               {c ? (
                 <>
-                  <img
-                    src={assetUrl(c.art.portrait)}
-                    alt={c.name}
-                    style={{ borderRadius: 6, width: "100%" }}
-                  />
-                  <div style={{ fontWeight: 600, fontSize: "0.8rem" }}>{c.name}</div>
-                  <div style={{ display: "flex", justifyContent: "center", gap: "0.25rem", marginTop: "0.3rem" }}>
-                    <button style={slotBtn} disabled={slot === 0} onClick={() => move(slot, -1)}>
+                  <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
+                  <div className="card__name">{c.name}</div>
+                  <div className="cluster" style={{ justifyContent: "center", marginTop: "var(--s-2)" }}>
+                    <button className="btn--ghost btn--sm" disabled={slot === 0} onClick={() => move(slot, -1)}>
                       ◀
                     </button>
                     <button
-                      style={slotBtn}
+                      className="btn--ghost btn--sm"
                       disabled={slot >= draft.length - 1}
                       onClick={() => move(slot, 1)}
                     >
                       ▶
                     </button>
-                    <button style={slotBtn} onClick={() => remove(key)}>
+                    <button className="btn--ghost btn--sm" onClick={() => remove(key)}>
                       ✕
                     </button>
                   </div>
                 </>
               ) : (
-                <div style={{ padding: "1.5rem 0", color: "var(--muted)" }}>Empty</div>
+                <div className="muted" style={{ padding: "var(--s-6) 0" }}>Empty</div>
               )}
             </div>
           );
         })}
       </div>
 
-      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", marginBottom: "1rem" }}>
+      <div className="row" style={{ marginBottom: "var(--s-5)" }}>
         <button disabled={!canSave} onClick={persist}>
           {busy ? "Saving…" : "Save team"}
         </button>
         <button
-          style={{ background: "var(--panel-2)" }}
+          className="btn--ghost"
           disabled={!dirty || busy}
           onClick={() => setDraft(resolveTeam(owned, saved))}
         >
           Reset
         </button>
-        {savedTick && <span style={{ color: "var(--accent-2)", fontSize: "0.85rem" }}>Saved ✓</span>}
+        {savedTick && <span className="chip chip--accent">Saved ✓</span>}
       </div>
 
-      <h3 style={{ margin: "0 0 0.5rem" }}>Roster</h3>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "0.6rem" }}>
+      <h3>Roster</h3>
+      <div className="card-grid" style={{ "--card-min": "112px" } as React.CSSProperties}>
         {rosterSorted.map((o) => {
           const c = getCharacter(o.character_key);
           const picked = draft.includes(o.character_key);
@@ -140,24 +136,22 @@ export function Formation() {
           return (
             <button
               key={o.id}
+              className="card card--framed"
               onClick={() => (picked ? remove(o.character_key) : add(o.character_key))}
               disabled={!picked && full}
               style={{
-                background: "var(--panel)",
-                color: "var(--text)",
-                borderRadius: 10,
-                border: `2px solid ${picked ? "var(--accent-2)" : RARITIES[c.rarity].color}`,
-                padding: "0.4rem",
-                textAlign: "center",
-                opacity: picked ? 0.55 : 1,
-              }}
+                "--rarity": picked ? "var(--accent-2)" : RARITIES[c.rarity].color,
+                background: "var(--surface-1)",
+                minHeight: 0,
+                opacity: picked ? 0.6 : 1,
+              } as React.CSSProperties}
             >
-              <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6, width: "100%" }} />
-              <div style={{ fontWeight: 600, fontSize: "0.8rem" }}>{c.name}</div>
-              <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                Lv {o.level} · <span style={{ color: "#ffd166" }}>{"★".repeat(o.star)}</span>
+              <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
+              <div className="card__name">{c.name}</div>
+              <div className="card__meta">
+                Lv {o.level} · <span style={{ color: "var(--gold)" }}>{"★".repeat(o.star)}</span>
               </div>
-              <div style={{ fontSize: "0.7rem", color: ELEMENT_COLORS[c.element] }}>
+              <div style={{ fontSize: "var(--fs-xs)", color: ELEMENT_COLORS[c.element] }}>
                 {picked ? "On team" : c.element}
               </div>
             </button>
@@ -167,10 +161,3 @@ export function Formation() {
     </div>
   );
 }
-
-const slotBtn: React.CSSProperties = {
-  padding: "0.15rem 0.35rem",
-  fontSize: "0.75rem",
-  background: "var(--panel-2)",
-  borderRadius: 6,
-};

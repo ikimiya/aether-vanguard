@@ -32,37 +32,34 @@ export function Gacha() {
   if (results) {
     return (
       <div>
-        <h2 style={{ marginTop: 0 }}>Results</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "0.6rem" }}>
+        <div className="page-head">
+          <h1>Results</h1>
+        </div>
+        <div className="card-grid" style={{ "--card-min": "116px" } as React.CSSProperties}>
           {results.map((o, i) => {
             const c = getCharacter(o.characterId);
             return (
               <div
                 key={i}
+                className="card card--framed"
                 style={{
-                  border: `2px solid ${RARITIES[o.rarity].color}`,
-                  borderRadius: 10,
-                  padding: "0.4rem",
-                  textAlign: "center",
-                  background: "var(--panel)",
+                  "--rarity": RARITIES[o.rarity].color,
                   animation: "cardReveal 0.35s ease both",
                   animationDelay: `${i * 60}ms`,
-                }}
+                } as React.CSSProperties}
               >
-                <img src={assetUrl(c.art.portrait)} alt={c.name} style={{ borderRadius: 6, width: "100%" }} />
-                <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{c.name}</div>
-                <div style={{ fontSize: "0.75rem", color: RARITIES[o.rarity].color }}>
+                <img className="card__img" src={assetUrl(c.art.portrait)} alt={c.name} />
+                <div className="card__name">{c.name}</div>
+                <div style={{ fontSize: "var(--fs-xs)", color: RARITIES[o.rarity].color }}>
                   {RARITIES[o.rarity].label}
                   {o.isFeatured ? " ★" : ""}
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                  {o.isNew ? "NEW" : `+${o.dupeShards} shards`}
-                </div>
+                <div className="card__meta">{o.isNew ? "NEW" : `+${o.dupeShards} shards`}</div>
               </div>
             );
           })}
         </div>
-        <button style={{ marginTop: "1rem" }} onClick={() => setResults(null)}>
+        <button className="btn--ghost" style={{ marginTop: "var(--s-5)" }} onClick={() => setResults(null)}>
           Back to banners
         </button>
       </div>
@@ -80,35 +77,41 @@ export function Gacha() {
           }}
         />
       )}
-      <h2 style={{ marginTop: 0 }}>Gacha</h2>
-      {gachaState && (
-        <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>
-          {gachaState.pulls_since_5star} since last 5★
-          {gachaState.guaranteed_featured ? " · next 5★ guaranteed featured" : ""}
-        </p>
-      )}
-      {error && <p style={{ color: "#ff8080" }}>{error}</p>}
+      <div className="page-head">
+        <h1>Summon</h1>
+        {gachaState && (
+          <span className="chip">
+            {gachaState.pulls_since_5star} since 5★
+            {gachaState.guaranteed_featured ? " · featured guaranteed" : ""}
+          </span>
+        )}
+      </div>
+      {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
 
-      <div style={{ display: "grid", gap: "1rem" }}>
+      <div className="stack">
         {BANNERS.map((b) => {
           const can1 = (currencies?.gems ?? 0) >= b.costPerPull;
           const can10 = (currencies?.gems ?? 0) >= b.costPerPull * 10;
           return (
-            <div key={b.id} style={{ background: "var(--panel)", borderRadius: 12, overflow: "hidden" }}>
-              <img src={assetUrl(b.art)} alt={b.name} style={{ display: "block", width: "100%" }} />
-              <div style={{ padding: "1rem" }}>
+            <div key={b.id} className="panel" style={{ padding: 0, overflow: "hidden" }}>
+              <img src={assetUrl(b.art)} alt={b.name} style={{ width: "100%" }} />
+              <div style={{ padding: "var(--s-4)" }}>
                 <strong>{b.name}</strong>
                 {b.featured[5]?.length ? (
-                  <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.3rem 0" }}>
+                  <p className="muted" style={{ fontSize: "var(--fs-sm)", margin: "var(--s-2) 0" }}>
                     Rate-up: {b.featured[5].map((id) => getCharacter(id).name).join(", ")}
                   </p>
                 ) : null}
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+                <div className="row" style={{ marginTop: "var(--s-3)" }}>
                   <button disabled={busy || !!pending || !can1} onClick={() => pull(b.id, 1)}>
-                    Pull ×1 ({b.costPerPull})
+                    Pull ×1 · {b.costPerPull} 💎
                   </button>
-                  <button disabled={busy || !!pending || !can10} onClick={() => pull(b.id, 10)}>
-                    Pull ×10 ({b.costPerPull * 10})
+                  <button
+                    className="btn--ghost"
+                    disabled={busy || !!pending || !can10}
+                    onClick={() => pull(b.id, 10)}
+                  >
+                    Pull ×10 · {b.costPerPull * 10} 💎
                   </button>
                 </div>
               </div>
