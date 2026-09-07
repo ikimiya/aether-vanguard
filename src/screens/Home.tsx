@@ -17,13 +17,15 @@ export function Home() {
 
   const leadKey = resolveTeam(roster ?? [], formation ?? [])[0];
   const lead = leadKey ? tryGetCharacter(leadKey) : undefined;
+  const wallpaper = assetUrl(lead?.art.splash ?? "assets/menu-bg.png");
 
   return (
     <div
       className="menu"
       style={{ "--rarity": lead ? RARITIES[lead.rarity].color : undefined } as React.CSSProperties}
     >
-      {lead && <img className="menu__wallpaper" src={assetUrl(lead.art.battle)} alt="" />}
+      <img className="menu__wallpaper" src={wallpaper} alt="" />
+
 
       <div className="menu__hud">
         <span className="menu__name">{username}</span>

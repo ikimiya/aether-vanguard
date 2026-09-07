@@ -51,8 +51,11 @@ smoke-test the RPCs and the RLS lockdown.
 Four layers, deliberately decoupled:
 
 - **React app** (`src/screens/`, `src/AppLayout.tsx`, `src/router.tsx`) — all
-  menu screens, auth UI, routing. Uses `createHashRouter`: GitHub Pages serves a
-  single `index.html`, so routes must live after the `#`.
+  menu screens, auth UI, routing. Uses `createMemoryRouter`: the browser URL
+  never changes (stays the site root), screens swap in place — no deep links, no
+  back/forward, a refresh returns to Home. There is no persistent nav bar; the
+  Home screen (`/`) is the wallpaper main menu and the only hub. Other screens
+  show a "‹ Menu" button in the app bar.
 - **Phaser battle scene** (`src/phaser/`) — visualization and input for battles
   only. Lazy-loaded (Phaser is ~1.4 MB) so the menu bundle stays small. It
   renders state produced by the engine and reports the result back; it contains
@@ -99,9 +102,10 @@ Supporting:
 
 ### Routes
 
-HashRouter. `/login`, `/signup`, and `/sandbox` (a dev-only fixed-team battle
-tester) are outside the auth guard. Everything else is under `RequireAuth` +
-`AppLayout` (+ `GameDataProvider`): `/`, `/stages`, `/stages/:stageId`,
+In-memory router. `/login`, `/signup`, and `/sandbox` (a dev-only fixed-team
+battle tester, now only reachable in code) are outside the auth guard. Everything
+else is under `RequireAuth` + `AppLayout` (+ `GameDataProvider`): `/`, `/stages`,
+`/stages/:stageId`,
 `/gacha`, `/roster`, `/roster/:characterKey`, `/endless`.
 
 ### Data ownership
@@ -140,14 +144,25 @@ update both `src/game/gacha.ts`/`progression.ts` **and** the matching plpgsql in
 
 ### Adding a character
 
-1. Drop art at `public/assets/characters/<id>/portrait.png` and `battle.png`.
-2. Add `src/game/data/characters/<id>.ts`.
+1. Drop art at `public/assets/characters/<id>/portrait.png` (512×512) and
+   `battle.png` (420×560). Optionally `splash.png` (wide) and reference it as
+   `art.splash` — see "Menu wallpaper".
+2. Add `src/game/data/characters/<id>.ts` (copy `kai.ts`).
 3. Add one line to `src/game/data/characters/index.ts`.
 4. `npm run gen:sql` and re-run `supabase/generated/config_seed.sql` so the
    server knows the new character's rarity for gacha.
 
 Rarity is a field on the character object (`rarity: 3 | 4 | 5`), not a folder.
-The gacha filters the pool by that field.
+The gacha filters the pool by that field. Every art path referenced by a
+character (`portrait`, `battle`, and `splash` if set) must exist on disk or
+`src/game/data/data-integrity.test.ts` fails.
+
+### Menu wallpaper
+
+The home menu shows `public/assets/menu-bg.png` as a full-screen wallpaper —
+overwrite that one file to change it (any wide image, ~16:10). A character's
+optional `art.splash` overrides it while that unit leads the team. `npm run
+gen:art` regenerates `menu-bg.png` (and every other placeholder).
 
 ## Deployment
 
@@ -158,8 +173,8 @@ injected as GitHub Actions **repository variables** (`vars.VITE_SUPABASE_URL`,
 security boundary.
 
 `vite.config.ts` uses `base: "./"` (relative) so the build works under any Pages
-subpath without hardcoding the repo name. Combined with HashRouter this needs no
-per-repo configuration.
+subpath without hardcoding the repo name. Combined with the in-memory router
+(one served URL, ever) this needs no per-repo configuration.
 
 ## Conventions specific to this repo
 

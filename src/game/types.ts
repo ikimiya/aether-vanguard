@@ -23,7 +23,8 @@ export interface Character {
   mpRegen: number;
   /** Magic skill ids. Basic attack + defend are universal (engine-injected). */
   skills: string[];
-  art: { portrait: string; battle: string };
+  /** `splash`, if set, is the home-menu wallpaper while this unit leads the team. */
+  art: { portrait: string; battle: string; splash?: string };
   lore?: string;
 }
 

@@ -478,8 +478,8 @@ button.card:hover:not(:disabled) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0.32rem 0.9rem;
+  min-height: 40px;
+  padding: 0.45rem 1.1rem;
   border-radius: var(--r-pill);
   background: var(--surface-1);
   background: color-mix(in srgb, var(--surface-1) 82%, transparent);
@@ -502,8 +502,8 @@ button.card:hover:not(:disabled) {
 
 .menu-btn--play {
   grid-area: play;
-  min-height: 40px;
-  padding: 0.4rem 1.4rem;
+  min-height: 46px;
+  padding: 0.5rem 1.6rem;
   background: var(--accent-gradient);
   border: none;
   color: #fff;

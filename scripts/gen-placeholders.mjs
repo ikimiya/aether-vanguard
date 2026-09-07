@@ -136,6 +136,18 @@ function cardPixels(width, height, elementColor, rarityColor) {
   };
 }
 
+// Smooth diagonal gradient in the accent colours — the default menu wallpaper.
+function wallpaperPixels(width, height) {
+  const a = mix(hexToRgb("#7c5cff"), [0, 0, 0], 0.55);
+  const b = mix(hexToRgb("#35d0ba"), [0, 0, 0], 0.72);
+  const base = hexToRgb("#0b0d14");
+  return (x, y) => {
+    const t = (x / width + y / height) / 2;
+    const g = mix(a, b, t);
+    return mix(base, g, 0.5 + 0.35 * Math.sin(t * Math.PI));
+  };
+}
+
 function writePng(relPath, buf) {
   const abs = join(PUBLIC, relPath);
   mkdirSync(dirname(abs), { recursive: true });
@@ -159,6 +171,9 @@ for (const [id, color] of banners) {
   writePng(`assets/banners/${id}.png`, encodePng(1200, 500, cardPixels(1200, 500, color, "#2a2f3e")));
   count += 1;
 }
+
+writePng("assets/menu-bg.png", encodePng(1600, 1000, wallpaperPixels(1600, 1000)));
+count += 1;
 
 console.log(`Wrote ${count} placeholder images under public/assets/`);
 if (!existsSync(join(PUBLIC, "assets/characters/kai/portrait.png"))) {

@@ -41,7 +41,16 @@ describe("characters", () => {
     for (const c of CHARACTERS) {
       expect(existsSync(asset(c.art.portrait)), c.art.portrait).toBe(true);
       expect(existsSync(asset(c.art.battle)), c.art.battle).toBe(true);
+      if (c.art.splash) {
+        expect(existsSync(asset(c.art.splash)), c.art.splash).toBe(true);
+      }
     }
+  });
+});
+
+describe("menu", () => {
+  it("has a default wallpaper", () => {
+    expect(existsSync(asset("assets/menu-bg.png"))).toBe(true);
   });
 });
 
